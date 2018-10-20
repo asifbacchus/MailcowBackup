@@ -366,9 +366,12 @@ fi
 
 
 ### Log start of script operations
-echo -e "${note}${stamp}-- Start $scriptName execution ---${normal}" \
+echo -e "${note}${stamp} --- Start $scriptName execution ---${normal}" \
     >> "$logFile"
-
+echo -e "${info}${stamp} -- [INFO] using ${lit}${mailcowConfigFilePath}" \
+    >> "$logFile"
+echo -e "${info}${stamp} -- [INFO] using ${lit}${dockerComposeFilePath}" \
+    >> "$logFile"
 
 ### Export logFile variable for use by Borg
 export logFile="$logFile"
