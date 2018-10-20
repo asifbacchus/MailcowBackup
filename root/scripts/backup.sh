@@ -190,9 +190,21 @@ scriptPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 scriptName="$( basename ${0} )"
 logFile="$scriptPath/${scriptName%.*}.log"
 
+# Set default mailcow configuration filename
+mailcowConfigFile=mailcow.conf
+
+# Set default docker-compose filename
+dockerComposeFile=docker-config.yml
+
 # set default 503 error page name and location in scriptPath
 err503Path="$scriptPath/503.html"
 err503File="${err503Path##*/}"
+
+# Set default docker-compose stop timeout
+dockerStopTimeout=120
+
+# Set default docker-compose start timeout
+dockerStartTimeout=180
 
 # set default borgDetails path to scriptPath
 borgDetails="$scriptPath/nc_borg.details"
