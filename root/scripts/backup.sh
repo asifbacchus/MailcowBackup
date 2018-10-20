@@ -194,9 +194,6 @@ logFile="$scriptPath/${scriptName%.*}.log"
 err503Path="$scriptPath/503.html"
 err503File="${err503Path##*/}"
 
-# set default sqlDetails path to scriptPath
-sqlDetails="$scriptPath/nc_sql.details"
-
 # set default borgDetails path to scriptPath
 borgDetails="$scriptPath/nc_borg.details"
 
@@ -209,11 +206,7 @@ borgPruneParams='--list'
 unset PARAMS
 unset sqlDumpDir
 unset webroot
-unset ncRoot
-unset webUser
 unset clean503
-unset sqlParams
-unset ncDataDir
 unset borgXtra
 unset borgExclude
 unset borgPrune
