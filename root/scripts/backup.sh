@@ -461,8 +461,8 @@ echo -e "${op}${stamp} Stopping postfix-mailcow container...${normal}" \
     >> "$logFile"
 docker-compose stop --timeout ${dockerStopTimeout} postfix-mailcow >> "$logFile"
 # verify stop was successful
-dockerResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_postfix-mailcow_1)
-if [ "$dockerResult" -eq 0 ]; then
+checkResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_postfix-mailcow_1)
+if [ "$checkResult" -eq 0 ]; then
     echo -e "${info}${stamp} -- [INFO] Postfix container stopped --${normal}" \
         >> "$logFile"
 else
@@ -475,8 +475,8 @@ echo -e "${op}${stamp} Stopping dovecot-mailcow container...${normal}" \
     >> "$logFile"
 docker-compose stop --timeout ${dockerStopTimeout} dovecot-mailcow >> "$logFile"
 # verify stop was successful
-dockerResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_dovecot-mailcow_1)
-if [ "$dockerResult" -eq 0 ]; then
+checkResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_dovecot-mailcow_1)
+if [ "$checkResult" -eq 0 ]; then
     echo -e "${info}${stamp} -- [INFO] Dovecot container stopped --${normal}" \
         >> "$logFile"
 else
@@ -489,9 +489,9 @@ fi
 ### Dump SQL
 echo -e "${op}${stamp} Dumping mailcow SQL database...${normal}" >> "$logFile"
 docker-compose exec mysql-mailcow mysqldump --default-character-set=utf8mb4 -u${DBUSER} -p${DBPASS} ${DBNAME} > "$sqlDumpDir/$sqlDumpFile" >> "$logFile" 2>&1
-dumpResult=$(docker-compose exec mysql-mailcow echo "$?")
+checkResult=$(docker-compose exec mysql-mailcow echo "$?")
 # verify sql dump was successful
-if [ "$dumpResult" -eq 0 ]; then
+if [ "$checkResult" -eq 0 ]; then
     echo -e "${ok}${stamp} -- [SUCCESS] SQL successfully dumped --${normal}" \
         >> "$logFile"
 else
