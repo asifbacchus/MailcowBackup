@@ -455,12 +455,34 @@ fi
 cd "$mailcowPath"
 
 ### Stop postfix and dovecot so mailflow is stopped until backup is completed
-echo -e "${op}${stamp} Stopping postfix and dovecot containers now..." \
-    "${normal}" >> "$logFile"
-docker-compose stop --timeout ${dockerStopTimeout} 2>> "$logFile"
-# docker-compose always returns an error code of 0, so there is no point in
-# error checking
-echo -e "${op}${stamp} ...done (verify in docker logs)${normal}" >> "$logFile"
+## Stop postfix-mailcow container
+echo -e "${op}${stamp} Stopping postfix-mailcow container...${normal}" \
+    >> "$logFile"
+docker-compose stop --timeout ${dockerStopTimeout} postfix-mailcow >> "$logFile"
+# verify stop was successful
+dockerResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_postfix-mailcow_1
+if [ "$dockerResult" -eq 0 ]; then
+    echo -e "${info}${stamp} -- [INFO] Postfix container stopped --${normal}" \
+        >> "$logFile"
+else
+    exitError+=('101')
+    cleanup
+    quit
+fi
+## Stop dovecot-mailcow container
+echo -e "${op}${stamp} Stopping dovecot-mailcow container...${normal}" \
+    >> "$logFile"
+docker-compose stop --timeout ${dockerStopTimeout} dovecot-mailcow >> "$logFile"
+# verify stop was successful
+dockerResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_dovecot-mailcow_1
+if [ "$dockerResult" -eq 0 ]; then
+    echo -e "${info}${stamp} -- [INFO] Dovecot container stopped --${normal}" \
+        >> "$logFile"
+else
+    exitError+=('102')
+    cleanup
+    quit
+fi
 
 
 ### Dump SQL
