@@ -402,6 +402,9 @@ source "${mailcowConfigFilePath}"
 ### Export logFile variable for use by Borg
 export logFile="$logFile"
 
+### Export docker container startup timeout variable
+export COMPOSE_HTTP_TIMEOUT=${dockerStartTimeout}
+
 
 ### Create sqlDump temporary directory and sqlDumpFile name
 sqlDumpDir=$( mktemp -d )
