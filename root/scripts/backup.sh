@@ -215,6 +215,9 @@ borgPruneParams='--list'
 
 
 ### Set script parameters to null and initialize array variables
+unset mailcowConfigFilePath
+unset mailcowPath
+unset dockerComposeFilePath
 unset PARAMS
 unset sqlDumpDir
 unset webroot
@@ -332,7 +335,24 @@ if [ $(id -u) -ne 0 ]; then
     exit 2
 fi
 
+## Find mailcow configuration file so additional variables can be read
+mailcowConfigFilePath=$(find / -mount -name "$mailcowConfigFile" -print )
+if [ -z "$mailcowConfigFilePath" ]; then
+    echo -e "\n${err}Could not locate the specified mailcow configuration" \
+        "file: ${lit}${mailcowConfigFile}${normal}"
+    exit 1
+fi
 
+## Find docker-compose file using mailcow configuration file path as a reference
+mailcowPath="${mailcowConfigFilePath%/$mailcowConfigFile*}"
+dockerComposeFilePath="$mailcowPath/$dockerComposeFile"
+checkExist ff "$dockerComposeFilePath"
+checkResult="$?"
+if [ "$checkResult" = 1 ]; then
+    echo -e "\n${err}Could not locate docker-compose configuration file:" \
+        "${lit}${dockerComposeFilePath}${normal}"
+    exit 1
+fi
 
 ## Ensure borgDetails file exists
 checkExist ff "$borgDetails"
