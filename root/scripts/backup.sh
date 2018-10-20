@@ -689,7 +689,9 @@ if [ -z "$borgExclude" ]; then
         >> "$logFile"
     borg --show-rc create ${borgCreateParams} ::`date +%Y-%m-%d_%H%M%S` \
         ${xtraFiles[@]} \
-        ${sqlDumpDir} ${ncDataDir} \
+        ${sqlDumpDir} \
+        ${dockerVolumeMail} ${dockerVolumeRspamd} ${dockerVolumePostfix} \
+        ${dockerVolumeRedis} ${dockerVolumeCrypt} \
         2>> "$logFile"
 else
     # borgExclude is not empty
@@ -698,7 +700,9 @@ else
     borg --show-rc create ${borgCreateParams} --exclude-from ${borgExclude} \
         ::`date +%Y-%m-%d_%H%M%S` \
         ${xtraFiles[@]} \
-        ${sqlDumpDir} ${ncDataDir} \
+        ${sqlDumpDir} \
+        ${dockerVolumeMail} ${dockerVolumeRspamd} ${dockerVolumePostfix} \
+        ${dockerVolumeRedis} ${dockerVolumeCrypt} \
         2>> "$logFile"
 fi
 
