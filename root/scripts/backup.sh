@@ -276,19 +276,11 @@ if [ -n "$1" ] && [[ ! "$1" =~ ^- ]]; then
 fi
 
 # use GetOpts to process parameters
-while getopts ':l:n:u:v5:w:s:b:d:' PARAMS; do
+while getopts ':l:v5:w:b:' PARAMS; do
     case "$PARAMS" in
         l)
             # use provided location for logFile
             logFile="${OPTARG}"
-            ;;
-        n)
-            # NextCloud webroot
-            ncRoot="${OPTARG%/}"
-            ;;
-        u)
-            # webuser
-            webUser="${OPTARG}"
             ;;
         v)
             # verbose output from Borg
@@ -304,17 +296,9 @@ while getopts ':l:n:u:v5:w:s:b:d:' PARAMS; do
             # path to webserver webroot to copy 503 error page
             webroot="${OPTARG%/}"
             ;;
-        s)
-            # path to file containing SQL login details
-            sqlDetails="${OPTARG%/}"
-            ;;
         b)
             # path to file containing borgbackup settings and details
             borgDetails="${OPTARG%/}"
-            ;;
-        d)
-            # nextcloud data directory
-            ncDataDir="${OPTARG%/}"
             ;;
         ?)
             # unrecognized parameters trigger scriptHelp
