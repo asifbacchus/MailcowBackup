@@ -451,6 +451,18 @@ fi
 ### --- End 503 section ---
 
 
+### Change directory to mailcowPath
+cd "$mailcowPath"
+
+### Stop postfix and dovecot so mailflow is stopped until backup is completed
+echo -e "${op}${stamp} Stopping postfix and dovecot containers now..." \
+    "${normal}" >> "$logFile"
+docker-compose stop --timeout ${dockerStopTimeout} 2>> "$logFile"
+# docker-compose always returns an error code of 0, so there is no point error
+# checking
+echo -e "${op}${stamp} ...done${normal}" >> "$logFile"
+
+
 ### Dump SQL
 echo -e "${op}${stamp} Dumping NextCloud SQL database...${normal}" >> "$logFile"
 mysqldump --single-transaction -h"${sqlParams[0]}" -u"${sqlParams[1]}" \
