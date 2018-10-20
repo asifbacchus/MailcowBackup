@@ -187,11 +187,13 @@ if [ "$1" = "stop" ]; then
         >> "$logFile"
     docker-compose stop --timeout ${dockerStopTimeout} ${2}-mailcow \
         >> "$logFile"
+    # verify
     dockerResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
 elif [ "$1" = "start" ]; then
     echo -e "${op}${stamp} Starting ${2}-mailcow container...${normal}" \
         >> "$logFile"
     docker-compose start ${2}-mailcow >> "$logFile"
+    # verify
     dockerResult=$(docker inspect -f '{{ .State.Running }}' ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
 fi
 }
@@ -480,14 +482,12 @@ fi
 ### Change directory to mailcowPath
 cd "$mailcowPath"
 
+
 ### Stop postfix and dovecot so mailflow is stopped until backup is completed
 ## Stop postfix-mailcow container
-echo -e "${op}${stamp} Stopping postfix-mailcow container...${normal}" \
-    >> "$logFile"
-docker-compose stop --timeout ${dockerStopTimeout} postfix-mailcow >> "$logFile"
-# verify stop was successful
-checkResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_postfix-mailcow_1)
-if [ "$checkResult" -eq 0 ]; then
+operateDocker stop postfix
+# process result
+if [ "$dockerResult" -eq 0 ]; then
     echo -e "${info}${stamp} -- [INFO] Postfix container stopped --${normal}" \
         >> "$logFile"
 else
@@ -496,12 +496,9 @@ else
     quit
 fi
 ## Stop dovecot-mailcow container
-echo -e "${op}${stamp} Stopping dovecot-mailcow container...${normal}" \
-    >> "$logFile"
-docker-compose stop --timeout ${dockerStopTimeout} dovecot-mailcow >> "$logFile"
-# verify stop was successful
-checkResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_dovecot-mailcow_1)
-if [ "$checkResult" -eq 0 ]; then
+operateDocker stop dovecot
+# process result
+if [ "$dockerResult" -eq 0 ]; then
     echo -e "${info}${stamp} -- [INFO] Dovecot container stopped --${normal}" \
         >> "$logFile"
 else
