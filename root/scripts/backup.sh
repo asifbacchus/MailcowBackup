@@ -373,6 +373,9 @@ echo -e "${info}${stamp} -- [INFO] using ${lit}${mailcowConfigFilePath}" \
 echo -e "${info}${stamp} -- [INFO] using ${lit}${dockerComposeFilePath}" \
     >> "$logFile"
 
+### Import additional variables from mailcow configuration file
+source "${mailcowConfigFilePath}"
+
 ### Export logFile variable for use by Borg
 export logFile="$logFile"
 
