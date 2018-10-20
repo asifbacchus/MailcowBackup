@@ -140,14 +140,6 @@ function checkExist {
     fi
 }
 
-### ncMaint - pass requested mode change type to NextCloud occ
-function ncMaint {
-    sudo -u ${webUser} php ${ncroot}/occ maintenance:mode --$1 \
-        >> "$logFile" 2>&1
-    maintResult="$?"
-    return "$maintResult"
-}
-
 ### cleanup - cleanup files and directories created by this script
 function cleanup {
     ## remove SQL dump file and directory
@@ -184,17 +176,6 @@ function cleanup {
     else
         echo -e "${op}${stamp} 503 error page never copied to webroot," \
             "nothing to cleanup" >> "$logFile"
-    fi
-
-    ## Exit NextCloud maintenance mode regardless of current status
-    ncMaint off
-    # check if successful
-    if [ "$maintResult" = "0" ]; then
-        echo -e "${info}${stamp} -- [INFO] NextCloud now in regular" \
-                "operating mode --${normal}" >> "$logFile"
-        else
-            exitError+=('101')
-            quit
     fi
 }
 
