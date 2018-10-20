@@ -336,7 +336,7 @@ if [ $(id -u) -ne 0 ]; then
 fi
 
 ## Find mailcow configuration file so additional variables can be read
-mailcowConfigFilePath=$(find / -mount -name "$mailcowConfigFile" -print )
+mailcowConfigFilePath=$( find / -mount -name "$mailcowConfigFile" -print )
 if [ -z "$mailcowConfigFilePath" ]; then
     echo -e "\n${err}Could not locate the specified mailcow configuration" \
         "file: ${lit}${mailcowConfigFile}${normal}"
