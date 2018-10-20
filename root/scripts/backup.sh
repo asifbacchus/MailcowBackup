@@ -451,23 +451,6 @@ fi
 ### --- End 503 section ---
 
 
-### Put NextCloud in maintenance mode
-ncMaint on
-# check if successful
-if [ "$maintResult" = "0" ]; then
-    echo -e "${info}${stamp} -- [INFO] NextCloud now in maintenance mode --" \
-        "${normal}" >> "$logFile"
-else
-    exitError+=('100')
-    cleanup
-    quit
-fi
-
-
-### Get SQL info from sqlDetails
-mapfile -t sqlParams < "$sqlDetails"
-
-
 ### Dump SQL
 echo -e "${op}${stamp} Dumping NextCloud SQL database...${normal}" >> "$logFile"
 mysqldump --single-transaction -h"${sqlParams[0]}" -u"${sqlParams[1]}" \
