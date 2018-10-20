@@ -177,6 +177,9 @@ function cleanup {
         echo -e "${op}${stamp} 503 error page never copied to webroot," \
             "nothing to cleanup" >> "$logFile"
     fi
+
+    ## ensure all docker containers are running
+    docker-compose up -d
 }
 
 ### operate docker containers
