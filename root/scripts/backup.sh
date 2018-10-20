@@ -239,8 +239,8 @@ borgConfig=()
 xtraFiles=()
 
 ### Error codes
-errorExplain[100]="Could not put NextCloud into maintenance mode"
-errorExplain[101]="Could not exit NextCloud maintenance mode"
+errorExplain[101]="Could not stop Postfix container. Please check docker logs"
+errorExplain[102]="Could not stop Dovecot container. Please check docker logs"
 errorExplain[200]="Could not dump NextCloud SQL database"
 errorExplain[210]="Invalid or non-existant borg base directory specified (borg backup details file)"
 errorExplain[211]="Invalid or non-existant path to borg SSH keyfile (borg backup details file)"
@@ -267,6 +267,7 @@ warningExplain[2200]="Borg completed with warnings. Please check this script's l
 warningExplain[2201]="Borg exited with an unknown return-code. Please check this script's logfile for details"
 warningExplain[2210]="Borg prune exited with warnings. Please check this script's logfile for details"
 warningExplain[2212]="Borg prune exited with an unknown return-code. Please check this script's logfile for details"
+warningExplain[1001]="There was a problem dumping the SQL database. It has NOT been backed up"
 
 
 ### Process script parameters
@@ -460,7 +461,7 @@ echo -e "${op}${stamp} Stopping postfix-mailcow container...${normal}" \
     >> "$logFile"
 docker-compose stop --timeout ${dockerStopTimeout} postfix-mailcow >> "$logFile"
 # verify stop was successful
-dockerResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_postfix-mailcow_1
+dockerResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_postfix-mailcow_1)
 if [ "$dockerResult" -eq 0 ]; then
     echo -e "${info}${stamp} -- [INFO] Postfix container stopped --${normal}" \
         >> "$logFile"
@@ -474,7 +475,7 @@ echo -e "${op}${stamp} Stopping dovecot-mailcow container...${normal}" \
     >> "$logFile"
 docker-compose stop --timeout ${dockerStopTimeout} dovecot-mailcow >> "$logFile"
 # verify stop was successful
-dockerResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_dovecot-mailcow_1
+dockerResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_dovecot-mailcow_1)
 if [ "$dockerResult" -eq 0 ]; then
     echo -e "${info}${stamp} -- [INFO] Dovecot container stopped --${normal}" \
         >> "$logFile"
@@ -487,10 +488,15 @@ fi
 
 ### Dump SQL
 echo -e "${op}${stamp} Dumping mailcow SQL database...${normal}" >> "$logFile"
-docker-compose exec mysql-mailcow mysqldump --default-character-set=utf8mb4 -u${DBUSER} -p${DBPASS} ${DBNAME} > "$sqlDumpDir/$sqlDumpFile"
-# docker-compose always returns an error code of 0, so there is no point in
-# error checking
-echo -e "${op}${stamp} ...done (verify in docker logs)${normal}" >> "$logFile"
+docker-compose exec mysql-mailcow mysqldump --default-character-set=utf8mb4 -u${DBUSER} -p${DBPASS} ${DBNAME} > "$sqlDumpDir/$sqlDumpFile" 2>> "$logFile"
+dumpResult=$(docker-compose exec mysql-mailcow echo "$?")
+# verify sql dump was successful
+if [ "$dumpResult" -eq 0 ]; then
+    echo -e "${ok}${stamp} -- [SUCCESS] SQL successfully dumped --${normal}" \
+        >> "$logFile"
+else
+    exitWarn+=('1001')
+fi
 
 
 ### Call borgbackup to copy actual files
