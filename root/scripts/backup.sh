@@ -458,26 +458,18 @@ cd "$mailcowPath"
 echo -e "${op}${stamp} Stopping postfix and dovecot containers now..." \
     "${normal}" >> "$logFile"
 docker-compose stop --timeout ${dockerStopTimeout} 2>> "$logFile"
-# docker-compose always returns an error code of 0, so there is no point error
-# checking
-echo -e "${op}${stamp} ...done${normal}" >> "$logFile"
+# docker-compose always returns an error code of 0, so there is no point in
+# error checking
+echo -e "${op}${stamp} ...done (verify in docker logs)${normal}" >> "$logFile"
 
 
 ### Dump SQL
-echo -e "${op}${stamp} Dumping NextCloud SQL database...${normal}" >> "$logFile"
-mysqldump --single-transaction -h"${sqlParams[0]}" -u"${sqlParams[1]}" \
-    -p"${sqlParams[2]}" "${sqlParams[3]}" > "${sqlDumpDir}/${sqlDumpFile}" \
-    2>> "$logFile"
-# verify
-dumpResult="$?"
-if [ "$dumpResult" = "0" ]; then
-    echo -e "${ok}${stamp} -- [SUCCESS] SQL dumped successfully --${normal}" \
-        >> "$logFile"
-else
-    exitError+=('200')
-    cleanup
-    quit
-fi
+echo -e "${op}${stamp} Dumping mailcow SQL database...${normal}" >> "$logFile"
+docker-compose exec mysql-mailcow mysqldump --default-character-set=utf8mb4 -u${DBUSER} -p${DBPASS} ${DBNAME} > "$sqlDumpDir/$sqlDumpFile"
+# docker-compose always returns an error code of 0, so there is no point in
+# error checking
+echo -e "${op}${stamp} ...done (verify in docker logs)${normal}" >> "$logFile"
+
 
 ### Call borgbackup to copy actual files
 echo -e "${op}${stamp} Pre-backup tasks completed, calling borgbackup..." \
