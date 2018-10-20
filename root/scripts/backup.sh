@@ -231,6 +231,11 @@ unset BORG_REPO
 unset BORG_PASSPHRASE
 unset BORG_REMOTE_PATH
 unset TMPDIR
+unset dockerVolumeMail
+unset dockerVolumeRspamd
+unset dockerVolumePostfix
+unset dockerVolumeRedis
+unset dockerVolumeCrypt
 exitError=()
 errorExplain=()
 exitWarn=()
@@ -666,6 +671,14 @@ else
 fi
 # export TMPDIR environment variable
 export TMPDIR="${BORG_BASE_DIR}/tmp"
+
+
+## Get docker volume paths on filesystem for inclusion in backup
+dockerVolumeMail=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_vmail-vol-1)
+dockerVolumeRspamd=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_rspamd-vol-1)
+dockerVolumePostfix=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_postfix-vol-1)
+dockerVolumeRedis=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_redis-vol-1)
+dockerVolumeCrypt=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_crypt-vol-1)
 
 
 ## Generate and execute borg
