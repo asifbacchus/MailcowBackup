@@ -332,49 +332,7 @@ if [ $(id -u) -ne 0 ]; then
     exit 2
 fi
 
-## Check NextCloud webroot
-# Ensure NextCloud webroot is provided
-if [ -z "$ncRoot" ]; then
-    echo -e "\n${err}The NextCloud webroot must be specified (-n parameter)" \
-        "${normal}\n"
-    exit 1
-# Ensure NextCloud webroot directory exists
-elif [ -n "$ncRoot" ]; then
-    checkExist fd "$ncRoot"
-    checkResult="$?"
-    if [ "$checkResult" = "1" ]; then
-        # Specified NextCloud webroot directory could not be found
-        echo -e "\n${err}The provided NextCloud webroot directory" \
-            "(-n parameter) does not exist.${normal}\n"
-        exit 1
-    fi
-fi
 
-## Check NextCloud webuser account
-# Ensure NextCloud webuser account is provided
-if [ -z "$webUser" ]; then
-    echo -e "\n${err}The webuser account running NextCloud must be provided" \
-        "(-u parameter)${normal}\n"
-    exit 1
-# Check if supplied webUser account exists
-elif [ -n "$webUser" ]; then
-    user_exists=$(id -u $webUser > /dev/null 2>&1; echo $?)
-    if [ $user_exists -ne 0 ]; then        
-        echo -e "\n${err}The supplied webuser account (-u parameter) does not" \
-            "exist.${normal}\n"
-        exit 1
-    fi
-fi
-
-## Ensure sqlDetails file exists
-checkExist ff "$sqlDetails"
-checkResult="$?"
-if [ "$checkResult" = "1" ]; then
-    # sqlDetails file cannot be found
-    echo -e "\n${err}The file containing your SQL details does not exist" \
-        "(-s parameter)${normal}\n"
-    exit 1
-fi
 
 ## Ensure borgDetails file exists
 checkExist ff "$borgDetails"
@@ -384,24 +342,6 @@ if [ "$checkResult" = "1" ]; then
     echo -e "\n${err}The file containing your borgbackup details does not" \
         "exist (-b parameter)${normal}\n"
     exit 1
-fi
-
-## Check NextCloud data directory
-# Ensure NextCloud data directory is provided
-if [ -z "$ncDataDir" ]; then
-    echo -e "\n${err}The NextCloud data directory must be specified" \
-        "(-d parameter)${normal}\n"
-    exit 1
-# Ensure NextCloud data directory exists
-elif [ -n "$ncDataDir" ]; then
-    checkExist fd "$ncDataDir"
-    checkResult="$?"
-    if [ "$checkResult" = "1" ]; then
-        # Specified NextCloud data directory could not be found
-        echo -e "\n${err}The provided NextCloud data directory" \
-            "(-d parameter) does not exist.${normal}\n"
-        exit 1
-    fi
 fi
 
 
