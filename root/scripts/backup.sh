@@ -276,7 +276,7 @@ if [ -n "$1" ] && [[ ! "$1" =~ ^- ]]; then
 fi
 
 # use GetOpts to process parameters
-while getopts ':l:v5:w:b:' PARAMS; do
+while getopts ':l:v5:w:b:m:d:1:2:' PARAMS; do
     case "$PARAMS" in
         l)
             # use provided location for logFile
@@ -299,6 +299,22 @@ while getopts ':l:v5:w:b:' PARAMS; do
         b)
             # path to file containing borgbackup settings and details
             borgDetails="${OPTARG%/}"
+            ;;
+        m)
+            # name of mailcow configuration file
+            mailcowConfigFile="${OPTARG}"
+            ;;
+        d)
+            # name of docker-compose configuration file
+            dockerComposeFile="${OPTARG}"
+            ;;
+        1)
+            # docker-compose stop timeout in seconds
+            dockerStopTimeout="${OPTARG}"
+            ;;
+        2)
+            # docker-compose start timeout in seconds
+            dockerStartTimeout="${OPTARG}"
             ;;
         ?)
             # unrecognized parameters trigger scriptHelp
