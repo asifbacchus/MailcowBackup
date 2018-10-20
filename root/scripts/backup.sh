@@ -178,8 +178,23 @@ function cleanup {
             "nothing to cleanup" >> "$logFile"
     fi
 
-    ## ensure all docker containers are running
-    docker-compose up -d
+    ## restart mailflow docker containers
+    # start and verify postfix
+    operateDocker start postfix
+    if [ "$dockerResult" = "true" ]; then
+        echo -e "${info}${stamp} -- [INFO] Postfix container is running --" \
+            "${normal}" >> "$logFile"
+    else
+        exitError+=('103')
+    fi
+    # start and verify dovecot
+    operateDocker start dovecot
+    if [ "$dockerResult" = "true" ]; then
+        echo -e "${info}${stamp} -- [INFO] Dovecot container is running --" \
+            "${normal}" >> "$logFile"
+    else
+        exitError+=('104')
+    fi
 }
 
 ### operate docker containers
@@ -268,6 +283,8 @@ xtraFiles=()
 ### Error codes
 errorExplain[101]="Could not stop Postfix container. Please check docker logs"
 errorExplain[102]="Could not stop Dovecot container. Please check docker logs"
+errorExplain[103]="Could not start Postfix container. Please check docker logs"
+errorExplain[104]="Could not start Dovecot container. Please check docker logs"
 errorExplain[201]="There was a problem dumping the SQL database. It has NOT been backed up"
 errorExplain[202]="There was a problem saving redis state information. It has NOT been backed up"
 errorExplain[210]="Invalid or non-existant borg base directory specified (borg backup details file)"
