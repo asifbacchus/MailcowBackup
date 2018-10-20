@@ -268,13 +268,15 @@ xtraFiles=()
 ### Error codes
 errorExplain[101]="Could not stop Postfix container. Please check docker logs"
 errorExplain[102]="Could not stop Dovecot container. Please check docker logs"
-errorExplain[200]="Could not dump NextCloud SQL database"
+errorExplain[201]="There was a problem dumping the SQL database. It has NOT been backed up"
+errorExplain[202]="There was a problem saving redis state information. It has NOT been backed up"
 errorExplain[210]="Invalid or non-existant borg base directory specified (borg backup details file)"
 errorExplain[211]="Invalid or non-existant path to borg SSH keyfile (borg backup details file)"
 errorExplain[212]="Name of borg repo was not specified (borg backup details file)"
 errorExplain[215]="Could not find/create 'tmp' directory within borg base directory. Please manually create it and ensure it's writable"
 errorExplain[220]="Borg exited with a critical error. Please check this script's logfile for details"
 errorExplain[221]="Borg prune exited with ERRORS. Please check this script's logfile for details"
+
 
 ### Warning codes & messages
 warningExplain[111]="Could not remove SQL dump file and directory, please remove manually"
@@ -294,8 +296,7 @@ warningExplain[2200]="Borg completed with warnings. Please check this script's l
 warningExplain[2201]="Borg exited with an unknown return-code. Please check this script's logfile for details"
 warningExplain[2210]="Borg prune exited with warnings. Please check this script's logfile for details"
 warningExplain[2212]="Borg prune exited with an unknown return-code. Please check this script's logfile for details"
-warningExplain[1001]="There was a problem dumping the SQL database. It has NOT been backed up"
-warningExplain[1002]="There was a problem saving redis state information. It has NOT been backed up"
+
 
 ### Process script parameters
 
@@ -520,7 +521,7 @@ if [ "$checkResult" -eq 0 ]; then
     echo -e "${ok}${stamp} -- [SUCCESS] SQL successfully dumped --${normal}" \
         >> "$logFile"
 else
-    exitWarn+=('1001')
+    exitError+=('201')
 fi
 
 
@@ -533,7 +534,7 @@ if [ "$checkResult" -eq 0 ]; then
     echo -e "${ok}${stamp} -- [SUCCESS] redis state saved --${normal}" \
         >> "$logFile"
 else
-    exitWarn+=('1002')
+    exitError+=('202')
 fi
 
 
