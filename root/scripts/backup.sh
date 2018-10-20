@@ -207,7 +207,7 @@ dockerStopTimeout=120
 dockerStartTimeout=180
 
 # set default borgDetails path to scriptPath
-borgDetails="$scriptPath/nc_borg.details"
+borgDetails="$scriptPath/mc_borg.details"
 
 # set borg parameters to 'normal' verbosity
 borgCreateParams='--stats'
