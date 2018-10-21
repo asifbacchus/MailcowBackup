@@ -242,7 +242,7 @@ logFile="$scriptPath/${scriptName%.*}.log"
 mailcowConfigFile=mailcow.conf
 
 # Set default docker-compose filename
-dockerComposeFile=docker-config.yml
+dockerComposeFile=docker-compose.yml
 
 # set default 503 error page name and location in scriptPath
 err503Path="$scriptPath/503.html"
