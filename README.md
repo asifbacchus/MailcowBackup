@@ -19,6 +19,40 @@ This script automates the following tasks:
 - Creates a clear, easy to parse log file so you can keep an eye on your backups
   and any errors/warnings
 
+## Contents <!-- omit in toc -->
+- [Installation/copying](#installationcopying)
+- [Environment notes](#environment-notes)
+- [Why this script must be run as root](#why-this-script-must-be-run-as-root)
+- [Script parameters](#script-parameters)
+    - [Optional parameters](#optional-parameters)
+        - [Docker container STOP timeout before error: -1 _number_](#docker-container-stop-timeout-before-error--1-_number_)
+        - [Docker container START timeout before error: -2 _number_](#docker-container-start-timeout-before-error--2-_number_)
+        - [Path to 503 error page: -5 _/path/to/filename.html_](#path-to-503-error-page--5-_pathtofilenamehtml_)
+        - [Path to borg details file: -b _/path/to/filename.file_](#path-to-borg-details-file--b-_pathtofilenamefile_)
+        - [File name of docker-compose configuration file: -d _filename.file_](#file-name-of-docker-compose-configuration-file--d-_filenamefile_)
+        - [Log file location: -l _/path/to/filename.file_](#log-file-location--l-_pathtofilenamefile_)
+        - [File name of Mailcow master configuration file: -m _filename.file_](#file-name-of-mailcow-master-configuration-file--m-_filenamefile_)
+        - [Verbose output from borg: -v (no arguments)](#verbose-output-from-borg--v-no-arguments)
+        - [Path to webroot: -w _/path/to/webroot/_](#path-to-webroot--w-_pathtowebroot_)
+- [Borg details file](#borg-details-file)
+    - [Protect your borg details file](#protect-your-borg-details-file)
+    - [borg specific entries (lines 1-4)](#borg-specific-entries-lines-1-4)
+    - [additional files/directories to backup](#additional-filesdirectories-to-backup)
+    - [exclusion patterns](#exclusion-patterns)
+    - [purge timeframe options](#purge-timeframe-options)
+    - [borg remote location](#borg-remote-location)
+    - [Examples](#examples)
+- [503 functionality](#503-functionality)
+    - [Conditional forwarding by your webserver](#conditional-forwarding-by-your-webserver)
+        - [NGINX](#nginx)
+        - [Apache](#apache)
+        - [Disabling 503 functionality altogether](#disabling-503-functionality-altogether)
+- [Scheduling: Cron](#scheduling-cron)
+- [The log file](#the-log-file)
+    - [Using Logwatch](#using-logwatch)
+    - [Remember to rotate your logs](#remember-to-rotate-your-logs)
+- [Final notes](#final-notes)
+
 ## Installation/copying
 
 Once you've either cloned this git or downloaded the release file, simply copy
