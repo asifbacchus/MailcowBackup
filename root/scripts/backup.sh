@@ -319,7 +319,7 @@ warningExplain[2112]="No remote borg instance specified. Operations will be slow
 warningExplain[2113]="The specified file containing extra files for inclusion in borgbackup could not be found"
 warningExplain[2114]="The specified file containing exclusion patterns for borgbackup could not be found. Backup was performed as though NO exclusions were defined"
 warningExplain[2115]="No paramters provided for borg prune. No repo pruning has taken place. You should reconsider this decision to control the size/history of your backups"
-warningExplain[2116]="No additional locations are specified for inclusion in backup. ONLY NextCloud DATA will be backed up (no configuration, etc). If this is unintentional, check the inclusion file referenced in your borgbackup settings"
+warningExplain[2116]="No additional locations are specified for inclusion in backup. ONLY Mailcow data and config files will be backed up (NO system files, etc). If this is unintentional, check the inclusion file referenced in your borgbackup settings"
 warningExplain[2200]="Borg completed with warnings. Please check this script's logfile for details"
 warningExplain[2201]="Borg exited with an unknown return-code. Please check this script's logfile for details"
 warningExplain[2210]="Borg prune exited with warnings. Please check this script's logfile for details"
@@ -662,7 +662,8 @@ if [ -n "$borgXtra" ]; then
 else
     # no extra locations specified
     echo -e "${op}${stamp} No additional locations specified for backup." \
-        "Only NextCloud data files will be backed up${normal}" >> "$logFile"
+        "Only Mailcow data and config files will be backed up.${normal}" \
+            >> "$logFile"
     exitWarn+=('2116')
 fi
 
