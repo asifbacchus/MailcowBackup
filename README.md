@@ -263,14 +263,14 @@ not run borg locally but your backups/restores will be slower.
 
 ### Examples
 
-Repo in directory *'NCBackup'*, all fields including pointers to additional
+Repo in directory *'MailcowBackup'*, all fields including pointers to additional
 files to backup, exclusion patterns and a remote borg path.  Prune: keep all
 backups made in the last 14 days.
 
 ```Ini
 /var/borgbackup
 /var/borgbackup/SSHprivate.key
-myuser@server001.rsync.net:NCBackup/
+myuser@server001.rsync.net:MailcowBackup/
 myPaSsWoRd
 /root/NCscripts/xtraLocations.borg
 /root/NCscripts/excludeLocations.borg
@@ -307,40 +307,6 @@ pAsSw0rD
 ```
 
 **Notice that the blank lines are very important!**
-
-## SQL details file
-
-This file contains all the information needed to access your Mailcow SQL
-database in order to dump it's contents into a file that can be easily
-backed-up. Each line must contain specific information in a specific order.  The
-sample file includes this data and example entries.  The file must have the
-following information in the following order (**all entries required**):
-
-    1. name of machine hosting mySQL (usually localhost)
-    2. name of authorized user
-    3. password for above user
-    4. name of Mailcow database
-
-For example:
-
-```Ini
-localhost
-Mailcow
-pAsSwOrD
-MailcowDB
-```
-
-### Protect your sql details file
-
-This file contains information on how to access your SQL installation therefore,
-you **must** protect it.  You should lock it out for all users except root.
-Putting it in your root folder is not enough!  Run the following commands to
-restrict access to the root user only (assuming filename is *'nc_sql.details'*):
-
-```Bash
-chown root:root nc_sql.details   # make root the owner
-chmod 600 nc_sql.details   # restrict access to root only (read/write)
-```
 
 ## 503 functionality
 
