@@ -395,11 +395,11 @@ easiest with a simple cron job.
     ```
 
 2. Add your script command line and set the time. I'm assuming your script is
-   located at *'/root/NCscripts'*, all files are at their default locations and
+   located at *'/root/scripts'*, all files are at their default locations and
    you want to run your backup at 1:07am daily.
 
     ```Bash
-    7 1 * * * /root/NCscripts/backup.sh -d /var/nc_data -n /usr/share/nginx/html/Mailcow -u www-data -l /var/log/backup.log -w /usr/share/nginx/html > /dev/null 2>&1
+    7 1 * * * /root/scripts/backup.sh -l /var/log/backup.log -w /usr/share/nginx/html > /dev/null 2>&1
     ```
 
     The last part redirects all output to 'null' and forwards any errors to
