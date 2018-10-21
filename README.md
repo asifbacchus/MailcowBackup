@@ -49,6 +49,10 @@ several optional parameters to override its default or detected settings.  In
 addition, it reads easy to edit external plain-text files for borg settings so
 you don't have to weed through the script code to supply things like passwords.
 
+**This script autodetects the location of your Mailcow configuration file. If
+you have multiple files with the same name on your system, the script will
+likely get confused and exit with an error**
+
 ## Why this script must be run as root
 
 This script must be run by the root user and will exit with an error if you try
@@ -181,9 +185,12 @@ order:
 This file contains information on how to access and decrypt your borg repo,
 therefore, you **must** protect it.  You should lock it out for everyone but
 your root user. Putting it in your root folder is not enough!  Run the following
-commands to restrict access to the root user only (assuming filename is and
-mc_borg.details root:roo and mc_borg.detailsowner chmod 60 and mc_borg.detailss
-to root only (read/write)
+commands to restrict access to the root user only (assuming filename is
+*mc_borg.details*):
+
+```Bash
+chown root:root mc_borg.details   # make root the owner of this file
+chmod 600 mc_borg.details   # only grant access to root user (read/write)
 ```
 
 ### borg specific entries (lines 1-4)
