@@ -73,6 +73,18 @@ General usage:
 
 ### Optional parameters
 
+#### Docker container STOP timeout before error: -1 _number_
+
+The amount of time, in seconds, to wait for a docker container to STOP
+gracefully before aborting, logging and error and exiting the script.
+**Default: _120_**
+
+#### Docker container START timeout before error: -2 _number_
+
+The amount of time, in seconds, to wait for a docker container to START
+before aborting, logging and error and exiting the script.
+**Default: _180_**
+
 #### Path to 503 error page: -5 _/path/to/filename.html_
 
 The path to an html file for the script to copy to your webroot during the
@@ -82,8 +94,9 @@ unavailable' while being backed up.  A sample 503 page is included for you.
 
 If you remove the default file or the one you specify is missing, a warning will
 be issued by the script but, it will continue executing.  More details on the
-503 notification can be found later in the [503 functionality](#503-functionality) section of this
-document. **Default: _scriptpath/503.html_**
+503 notification can be found later in the [503
+functionality](#503-functionality) section of this document. 
+**Default: _scriptpath/503.html_**
 
 #### Path to borg details file: -b _/path/to/filename.file_
 
@@ -91,21 +104,33 @@ This is a text file that lays out various borg options such as repo name,
 password, additional files to include, exclusion patters, etc.  A sample file is
 included for your reference.  More details, including the *required order* of
 entries can be found later in this document in the [borg details
-file](#borg-details-file) section. **Default: _scriptpat and mc_borg.detailsog
-file location: -l _/path/to/filename.file_
+file](#borg-details-file) section.
+**Default: _scriptpath/mc_borg.details_**
 
-If you have a particular place and filename you'd like this script use for it's
-log, then you can specify it using this parameter.  I would recommend
+#### File name of docker-compose configuration file: -d _filename.file_
+This is the file name of your docker-compose configuration file that is used to
+build/start/stop containers.  This script will only search for this file within
+the same directory where your Mailcow configuration file is found.
+**Default: _docker-compose.yml_**
+
+#### Log file location: -l _/path/to/filename.file_
+
+If you have a particular place and filename you'd like this script to use for
+it's log, then you can specify it using this parameter.  I would recommend
 *'/var/log/backup.log'*. By default, the script will name the log file
 *scriptname*.log and will save it in the same directory as the script itself.
 **Default: _scriptpath/scriptname.log_**
 
-#### Path to SQL details file: -s _/path/to/filename.file_
-
-This is a text file containing the details needed to connect to Mailcow's SQL
-database.  More information about the *required order* of entries can be found
-later in this document in the [sql details file](#sql-details-file) section.
-**Default: _scriptpath/nc_sql.details_**
+#### File name of Mailcow master configuration file: -m _filename.file_
+This is the file name of the Mailcow master configuration file that was
+generated after installation and contains all information needed to run Mailcow
+(database user name, volume directory prefixes, etc.)  This script will search
+your computer for either the default file name or the one you have provided.
+Upon finding it, the script will derive the file path and use that as the path
+in which to run all Mailcow/docker commands.  **Please do not have multiple
+files on your system with this name, the script WILL get confused and exit with
+an error**
+**Default: _mailcow.conf_**
 
 #### Verbose output from borg: -v (no arguments)
 
@@ -120,14 +145,19 @@ file being backed up is written to the log.**
 
 This is the path to the directory your webserver is using as it's default root.
 In other words, this is the directory that contains the html files served when
-someone browses to your server.  Depending on your setup, this might be the same
-as your Mailcow webroot.
+someone browses to your server.  The correct webroot depends greatly on your
+particular setup.
+
+If you directly connect to Mailcow via Docker, then your webroot is by default
+*/opt/mailcow-dockerized/data/web*, unless you've made changes to your install
+locations.  If you are running behind a reverse-proxy, then your webroot is your
+webserver's webroot (*/var/www* or */usr/share/nginx/html*, for example).
 
 This is used exclusively for 503 functionality since the script has to know
 where to copy the 503 file.  If you don't want to use this functionality, you
 can omit this parameter and the script will issue a warning and move on.  More
-details can be found in the [503 functionality](#503-functionality) section later in this
-document.
+details can be found in the [503 functionality](#503-functionality) section
+later in this document.
 
 ## Borg details file
 
