@@ -215,13 +215,13 @@ if [ "$1" = "stop" ]; then
     echo -e "${op}${stamp} Stopping ${2}-mailcow container...${normal}" \
         >> "$logFile"
     docker-compose stop --timeout ${dockerStopTimeout} ${2}-mailcow \
-        >> "$logFile"
+        2>> "$logFile"
     # verify
     dockerResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
 elif [ "$1" = "start" ]; then
     echo -e "${op}${stamp} Starting ${2}-mailcow container...${normal}" \
         >> "$logFile"
-    docker-compose start ${2}-mailcow >> "$logFile"
+    docker-compose start ${2}-mailcow 2>> "$logFile"
     # verify
     dockerResult=$(docker inspect -f '{{ .State.Running }}' ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
 fi
