@@ -61,39 +61,15 @@ files you might want to backup.
 
 You can run the script with the *'-?'* parameter to access the built-in help
 which explains the parameters.  However, the following is a more detailed
-explanation of each parameter and how to use them.
-**Note that any parameters needing a directory (webroot, Mailcow root, etc.)
-can be entered with or without the trailing / since it's stripped by the script
-anyways.**
+explanation of each parameter and how to use them. **Note that any parameters
+needing a directory (webroot, log file location, etc.) can be entered with or
+without the trailing / since it's stripped by the script anyways.**
 
 General usage:
 
 ```Bash
 /path/to/script/scriptname.sh -parameter argument -parameter argument ...
 ```
-
-### Required parameters
-
-#### Mailcow data directory: -d _/path/to/data/_
-
-This is the full path to the location where Mailcow actually stores data.  In
-a setup such as I recommend on my blog at
-[https://mytechiethoughts.com](https://www.mytechiethoughts.com), you would be
-using an entry such as *'/var/nc_data'*.  This directory and all subdirectories
-are automatically included in the backup.
-
-#### Mailcow webroot: -n _/path/to/Mailcow/_
-
-This is the directory in which Mailcow's php and html files are located.  It
-is generally somewhere under your webroot directory.  This is required so the
-script can find the 'OCC' command to invoke maintenance mode.
-
-#### webuser account: -w _accountName_
-
-This is the account that Mailcow runs under via your webserver.  This is
-almost always *'www-data'*.  You would have to check your NGINX/Apache config to
-be sure.  'OCC' will not run as any other user thus, the script cannot
-enter/exit maintenance mode without knowing which user to emulate.
 
 ### Optional parameters
 
