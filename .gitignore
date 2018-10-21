@@ -1,2 +1,5 @@
+# ignore all vscode config files
+.vscode/
+
 # ignore all generated logfiles
 *.log

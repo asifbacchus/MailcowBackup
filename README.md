@@ -99,7 +99,7 @@ unavailable' while being backed up.  A sample 503 page is included for you.
 If you remove the default file or the one you specify is missing, a warning will
 be issued by the script but, it will continue executing.  More details on the
 503 notification can be found later in the [503
-functionality](#503-functionality) section of this document. 
+functionality](#503-functionality) section of this document.
 **Default: _scriptpath/503.html_**
 
 #### Path to borg details file: -b _/path/to/filename.file_
@@ -112,6 +112,7 @@ file](#borg-details-file) section.
 **Default: _scriptpath/mc_borg.details_**
 
 #### File name of docker-compose configuration file: -d _filename.file_
+
 This is the file name of your docker-compose configuration file that is used to
 build/start/stop containers.  This script will only search for this file within
 the same directory where your Mailcow configuration file is found.
@@ -126,6 +127,7 @@ it's log, then you can specify it using this parameter.  I would recommend
 **Default: _scriptpath/scriptname.log_**
 
 #### File name of Mailcow master configuration file: -m _filename.file_
+
 This is the file name of the Mailcow master configuration file that was
 generated after installation and contains all information needed to run Mailcow
 (database user name, volume directory prefixes, etc.)  This script will search
@@ -272,8 +274,8 @@ backups made in the last 14 days.
 /var/borgbackup/SSHprivate.key
 myuser@server001.rsync.net:MailcowBackup/
 myPaSsWoRd
-/root/NCscripts/xtraLocations.borg
-/root/NCscripts/excludeLocations.borg
+/root/scripts/xtraLocations.borg
+/root/scripts/excludeLocations.borg
 --keep-within=14d
 borg1
 ```
@@ -419,7 +421,7 @@ any errors and warnings.  Everything is timestamped so you can see how long
 things take and when any errors took place.  The script includes debugging
 notes such as where temp files are located, where it's looking for data, whether
 it created/moved/copied files, etc.  All major operations are tagged *'-- [INFO]
-message here --'*.  Similarily, warnings are tagged *'-- [WARNING] message here
+message here --'*.  Similarly, warnings are tagged *'-- [WARNING] message here
 (code: xxxx) --'* and errors are tagged *'-- [ERROR] message here (code: xxx)
 --'*.  Successful operations generate a *'-- [SUCCESS] message here --'* stamp.
 
