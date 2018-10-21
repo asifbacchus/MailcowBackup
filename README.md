@@ -207,7 +207,7 @@ borg backups.
 This points to a plain-text file listing additional files and directories you'd
 like borg to include in the backup.  The sample file, *'xtraLocations.borg'*
 contains the most likely files you'd want to include assuming you're using a
-standard setup like it outline in my blog.
+standard setup like I outline in my blog.
 
 The following would include all files in the home folder for users *'foo'* and
 *'bar'* and any conf files in *'/etc/someProgram'*:
@@ -218,21 +218,23 @@ The following would include all files in the home folder for users *'foo'* and
 /etc/someProgram/*.conf
 ```
 
-You can leave this line blank to tell borg to only backup your Mailcow data
-directory and the SQL dump.  However, this is pretty unusual since you would not
-be including any configuration files, webserver configurations, etc.  If you
-omit this line, the script will log a warning to remind you of this unusual
-situation.
+You can leave this line blank to tell borg to only backup your Mailcow data,
+configuration and the SQL dump.  However, this is pretty unusual since you would
+not be including any server configuration files, reverse-proxy configurations,
+etc. If you omit this line, the script will log a warning to remind you of this
+unusual situation.
 
 ### exclusion patterns
 
 This points to a plain-text file containing borg-specific patterns describing
-what files you'd like borg to ignore during the backup.  The sample file,
-*'excludeLocations.borg'* contains a list of directories to exclude assuming a
-standard Mailcow install -- the previews directory and the cache directory.
+what files you'd like borg to ignore during the backup.  To specify exclusions,
+create a text file in any location you want and specify exclusions patterns, one
+per line.  Then update line 6 in your borg details file with the path to your
+new exclusion file.
+
 You need to run *'borg help patterns'* for help on how to specify any additional
-exclusion patterns since the format is not your standard BASH format and only
-sometimes uses standard regex.
+exclusion patterns since the format is not always your standard BASH format and
+only sometimes uses standard regex.
 
 If you leave this line blank, the script will note it is not processing any
 exclusions and will proceed with backing up all files specified.
