@@ -326,8 +326,8 @@ warning to let you know about it.
 The script copying the file to the webroot is the easy part.  Your webserver has
 to look for the presence of that file and generate a 503 error in order for the
 magic to happen.  To do that, you have to include an instruction to that effect
-in your default server definition and/or your Mailcow virtual server
-definition file depending on your setup.
+in your default server definition and/or your Mailcow virtual server definition
+file depending on your setup.
 
 #### NGINX
 
@@ -350,11 +350,11 @@ server {
 ```
 
 This tells NGINX that if it finds the file *'503.html'* at the path
-*'/usr/share/nginx/html'* (webroot) then return an error code 503.  Next,
-rewrite any url to *'domain.tld/503.html'* and thus, display the custom 503
-error page.  On the other hand, if it can't find 503.html at the path specified
-(i.e. the script has deleted it because the backup is completed), then go about
-business as usual.
+*'/usr/share/nginx/html'* (webroot on reverse proxy) then return an error code
+503.  Next, rewrite any url to *'domain.tld/503.html'* and thus, display the
+custom 503 error page.  On the other hand, if it can't find 503.html at the path
+specified (i.e. the script has deleted it because the backup is completed), then
+go about business as usual.
 
 #### Apache
 
