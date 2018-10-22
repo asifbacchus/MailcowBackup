@@ -39,7 +39,7 @@ This script automates the following tasks:
     - [borg specific entries (lines 1-4)](#borg-specific-entries-lines-1-4)
     - [additional files/directories to backup](#additional-filesdirectories-to-backup)
     - [exclusion patterns](#exclusion-patterns)
-    - [purge timeframe options](#purge-timeframe-options)
+    - [prune timeframe options](#prune-timeframe-options)
     - [borg remote location](#borg-remote-location)
     - [Examples](#examples)
 - [503 functionality](#503-functionality)
@@ -202,8 +202,8 @@ later in this document.
 ## Borg details file
 
 This file contains all the data needed to access your borg remote data repo.
-Each line must contain specific information in a specific order or needs to be
-blank if that data is not required.  The sample file includes this data and
+Each line must contain specific information in a specific order or **needs to be
+blank if that data is not required**.  The sample file includes this data and
 example entries.  The file must have the following information in the following
 order:
 
@@ -213,7 +213,7 @@ order:
     4. password for ssh key/repo **(required)**
     5. path to file listing additional files/directories to backup
     6. path to file containing borg-specific exclusion patterns
-    7. purge timeframe options
+    7. prune timeframe options
     8. location of borg remote instance
 
 ### Protect your borg details file
@@ -226,7 +226,7 @@ commands to restrict access to the root user only (assuming filename is
 
 ```Bash
 chown root:root mc_borg.details   # make root the owner of this file
-chmod 600 mc_borg.details   # only grant access to root user (read/write)
+chmod 600 mc_borg.details   # grant access to root user only (read/write)
 ```
 
 ### borg specific entries (lines 1-4)
@@ -254,7 +254,7 @@ The following would include all files in the home folder for users *'foo'* and
 /etc/someProgram/*.conf
 ```
 
-You can leave this line blank to tell borg to only backup your Mailcow data,
+*You can leave this line blank* to tell borg to only backup your Mailcow data,
 configuration and the SQL dump.  However, this is pretty unusual since you would
 not be including any server configuration files, reverse-proxy configurations,
 etc. If you omit this line, the script will log a warning to remind you of this
@@ -268,14 +268,14 @@ create a text file in any location you want and specify exclusions patterns, one
 per line.  Then update line 6 in your borg details file with the path to your
 new exclusion file.
 
-You need to run *'borg help patterns'* for help on how to specify any additional
-exclusion patterns since the format is not always your standard BASH format and
-only sometimes uses standard regex.
+You need to run *'borg help patterns'* for help on how to specify exclusion
+patterns since the format is not always standard BASH format and only sometimes
+uses standard regex.
 
 If you leave this line blank, the script will note it is not processing any
 exclusions and will proceed with backing up all files specified.
 
-### purge timeframe options
+### prune timeframe options
 
 Here you can let borg purge know how you want to manage your backup history.
 Consult the borg documentation and then copy the relevant options directly into
@@ -292,10 +292,10 @@ backups and then an infinite amount of end-of-month backups.
 
 ### borg remote location
 
-If you're using rsync, then just have this say *'borg1'*.  If you are using
+If you're using rsync.net, then just have this say *'borg1'*.  If you are using
 another provider, you'll have to reference their locally installed copy of borg
-relative to your repo path.  You can also leave this blank if your provider does
-not run borg locally but your backups/restores will be slower.
+relative to your home directory.  You can also leave this blank if your provider
+does not run borg locally but your backups/restores will be slower.
 
 ### Examples
 
@@ -306,7 +306,7 @@ backups made in the last 14 days.
 ```Ini
 /var/borgbackup
 /var/borgbackup/SSHprivate.key
-myuser@server001.rsync.net:MailcowBackup/
+myuser@usw-s001.rsync.net:MailcowBackup/
 myPaSsWoRd
 /root/scripts/xtraLocations.borg
 /root/scripts/excludeLocations.borg
@@ -320,7 +320,7 @@ end-of-week
 ```Ini
 /var/borgbackup
 /root/keys/rsyncPrivate.key
-myuser@server001.rsync.net:myBackup/
+myuser@usw-s001.rsync.net:myBackup/
 PaSsWoRd
 /var/borgbackup/include.list
 
