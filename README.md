@@ -349,7 +349,7 @@ pAsSw0rD
 This script includes an entire section dedicated to copying an html file to act
 as an error 503 notification page.  Error 503 is by definition "service
 temporarily unavailable" which is exactly the case for your Mailcow server
-during a backup since it is in maintenance mode and no logins are permitted.
+during a backup since the mail-flow containers have been disabled.
 
 The script copies whatever file is defined by the *'-5'* parameter (or the
 default located at *'scriptpath/503.html'*) to whatever path is defined as the
@@ -377,7 +377,7 @@ server {
         return 503;
     }
 ...
-    error_page 530 @backup
+    error_page 503 @backup
     location @backup {
         root /usr/share/nginx/html;
         rewrite ^(.*)$ /503.html break;
@@ -387,10 +387,10 @@ server {
 
 This tells NGINX that if it finds the file *'503.html'* at the path
 *'/usr/share/nginx/html'* (webroot on reverse proxy) then return an error code
-503.  Next, rewrite any url to *'domain.tld/503.html'* and thus, display the
-custom 503 error page.  On the other hand, if it can't find 503.html at the path
-specified (i.e. the script has deleted it because the backup is completed), then
-go about business as usual.
+503.  Upon encountering a 503 error, rewrite any url to *'domain.tld/503.html'*
+and thus, display the custom 503 error page.  On the other hand, if it can't
+find 503.html at the path specified (i.e. the script has deleted it because the
+backup is completed), then go about business as usual.
 
 #### Apache
 
