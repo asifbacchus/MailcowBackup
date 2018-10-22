@@ -474,13 +474,17 @@ Log-group, conf and service files are included so that you can easily setup
 Logwatch to monitor the script's log file and report at your desired detail
 level as follows:
 
-    1. 0: Summary of total success, warnings & errors only
+    1. 0: Summary of total successes, warnings & errors only
     2. 1-4: Actual success, error & warning messages
     3. 5: Same as above, but includes info messages
     4. 6+: Dumps entire raw log file including debugging messages
 
 A detailed breakdown of the files and all options are included in a separate
 readme in the *'/etc/logwatch'* folder of this git archive.
+
+If you don't really care how it works, you can just copy the files from this
+archive to your *'/etc/logwatch'* directory.  The directory structure is correct
+for a default Logwatch install on Debian/Ubuntu.
 
 ### Remember to rotate your logs
 
