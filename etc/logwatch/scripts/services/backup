@@ -1,0 +1,112 @@
+#!/usr/bin/perl
+
+#############################################################################
+# $Id$
+#############################################################################
+# Log: Backup script (backup)
+# Revision 1.0  2018/10/16
+# Written by Asif Bacchus
+#############################################################################
+
+
+use strict;
+
+### Get Logwatch detail level (or default to 0)
+my $detailLevel = $ENV{'LOGWATCH_DETAIL_LEVEL'} || 0;
+
+
+### Declare variables
+my $summaryErr;
+my $summaryWarn;
+my $summarySuccess;
+
+my %reportHash = ();
+my $key;
+
+
+### Minimal detail level: provide summary data only
+if ($detailLevel == 0) {
+    ### process logfile and summarize message types
+    while (defined(my $ThisLine = <STDIN>)) {
+        if ($ThisLine =~ /\-- \[ERROR\] /) {
+            $summaryErr++;
+        }
+        elsif ($ThisLine =~ /\-- \[WARNING\] /) {
+            $summaryWarn++;
+        }
+        elsif ($ThisLine =~ /All processes completed successfully/) {
+            $summarySuccess++;
+        }
+    }
+
+    ### fill hash table with headings and summary counts
+    if ($summarySuccess > 0) {
+        $reportHash{"All processes successfully completed"} = $summarySuccess;
+    }
+    if ($summaryWarn > 0) {
+        $reportHash{"Warnings issued"} = $summaryWarn;
+    }
+    if ($summaryErr > 0) {
+        $reportHash{"Errors encountered"} = $summaryErr;
+    }
+
+    ### print hash table
+    foreach $key (sort keys %reportHash) {
+        print "$key: $reportHash{$key}\n";
+    }
+}
+### Levels 1-4 provide the actual error, warning and success messages instead
+### of a summary count
+elsif ($detailLevel >= 1 && $detailLevel <= 4) {
+    while (defined(my $ThisLine = <STDIN>)) {
+        if ($ThisLine =~ /\-- \[ERROR\] /) {
+            print $ThisLine;
+        }
+        elsif ($ThisLine =~ /\-- \[WARNING\] /) {
+            print $ThisLine;
+        }
+        elsif ($ThisLine =~ /\-- \[SUCCESS\] /) {
+            print $ThisLine;
+        }
+    }
+}
+### Level 5 is similiar to levels 1-4 except it also reports informational
+### messages such as the location of script created files, variable checks,
+### etc. This is useful when verifying the script's operation.
+elsif ($detailLevel == 5) {
+    while (defined(my $ThisLine = <STDIN>)) {
+        if ($ThisLine =~ /\-- \[ERROR\] /) {
+            print $ThisLine;
+        }
+        elsif ($ThisLine =~ /\-- \[WARNING\] /) {
+            print $ThisLine;
+        }
+        elsif ($ThisLine =~ /\-- \[SUCCESS\] /) {
+            print $ThisLine;
+        }
+        elsif ($ThisLine =~ /\-- \[INFO\] /) {
+            print $ThisLine;
+        }
+    }
+}
+### Any level above 5 will echo the entire log including the debugging notes
+### within the script meant for troubleshooting.  Using this level of detail
+### should only be done if you cannot view the actual log file directly for
+### whatever reason.  The actual log file is colour-coded for easier debugging.
+elsif ($detailLevel > 5) {
+    while (defined(my $ThisLine = <STDIN>)) {
+        print $ThisLine;
+    }
+}
+
+
+
+### Exit gracefully
+exit (0);
+
+# vi: shiftwidth=3 tabstop=3 et
+# Local Variables:
+# mode: perl
+# perl-indent-level: 3
+# indent-tabs-mode: nil
+# End:
