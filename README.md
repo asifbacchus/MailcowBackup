@@ -11,7 +11,7 @@ This script automates the following tasks:
   server is unavailable due to backups being performed. The 503 file is removed
   when the backup is completed so users can login again
 - Dumps the Mailcow mySQL database and adds it to the backup
-- Handles stopping and re-starting mailflow containers (postfix and dovecot) so
+- Handles stopping and re-starting mail-flow containers (postfix and dovecot) so
   everything is in a consistent state during the backup
 - Allows you to specify additional files you want backed up
 - Allows you to specify files/directories to exclude from your backups
@@ -20,6 +20,7 @@ This script automates the following tasks:
   and any errors/warnings
 
 ## Contents <!-- omit in toc -->
+
 - [Installation/copying](#installationcopying)
 - [Environment notes](#environment-notes)
 - [Why this script must be run as root](#why-this-script-must-be-run-as-root)
@@ -83,7 +84,7 @@ several optional parameters to override its default or detected settings.  In
 addition, it reads easy-to-edit external plain-text files for borg settings so
 you don't have to weed through the script code to supply things like passwords.
 
-**This script autodetects the location of your Mailcow configuration file. If
+**This script auto-detects the location of your Mailcow configuration file. If
 you have multiple files on your system with the same name as the configuration
 file, the script will likely get confused and exit with an error**
 
