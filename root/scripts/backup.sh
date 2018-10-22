@@ -165,7 +165,7 @@ function cleanup {
     checkResult="$?"
     if [ "$checkResult" = "0" ]; then
         # directory still exists
-        exitWarn+=('111')
+        exitWarn+=("${stamp}_111")
     else
         # directory removed
         echo -e "${op}${stamp} Removed SQL temp directory${normal}" \
@@ -183,7 +183,7 @@ function cleanup {
         checkResult="$?"
         if [ "$checkResult" = "0" ]; then
             # file still exists
-            exitWarn+=('5030')
+            exitWarn+=("${stamp}_5030")
         else
             # file removed
             echo -e "${info}${stamp} -- [INFO] 503 page removed from webroot" \
@@ -201,7 +201,7 @@ function cleanup {
         echo -e "${info}${stamp} -- [INFO] Postfix container is running --" \
             "${normal}" >> "$logFile"
     else
-        exitError+=('103')
+        exitError+=("${stamp}_103")
     fi
     # start and verify dovecot
     operateDocker start dovecot
@@ -209,7 +209,7 @@ function cleanup {
         echo -e "${info}${stamp} -- [INFO] Dovecot container is running --" \
             "${normal}" >> "$logFile"
     else
-        exitError+=('104')
+        exitError+=("${stamp}_104")
     fi
 }
 
@@ -463,7 +463,7 @@ if [ -z "$webroot" ]; then
     # no webroot path provided
     echo -e "${info}${stamp} -- [INFO] ${warn503} --${normal}" \
         >> "$logFile"
-    exitWarn+=('5031')
+    exitWarn+=("${stamp}_5031")
     clean503=0
 else
     # verify webroot actually exists
@@ -473,7 +473,7 @@ else
         # webroot directory specified could not be found
         echo -e "${info}${stamp} -- [INFO] ${warn503} --${normal}" \
             >> "$logFile"
-        exitWarn+=('5032')
+        exitWarn+=("${stamp}_5032")
         clean503=0
     else
         # webroot exists
@@ -486,7 +486,7 @@ else
             # 503 file could not be found
             echo -e "${info}${stamp} -- [INFO] ${warn503} --${normal}" \
                 >> "$logFile"
-            exitWarn+=('5033')
+            exitWarn+=("${stamp}_5033")
             clean503=0
         else
             # 503 file exists and webroot is valid. Let's copy it!
@@ -501,7 +501,7 @@ else
                     # copy was unsuccessful
                     echo -e "${info}${stamp} -- [INFO] ${warn503} --${normal}" \
                         >> "$logFile"
-                    exitWarn+=('5035')
+                    exitWarn+=("${stamp}_5035")
                     clean503=0
                 else
                 # copy was successful
@@ -528,7 +528,7 @@ if [ "$dockerResult" -eq 0 ]; then
     echo -e "${info}${stamp} -- [INFO] Postfix container stopped --${normal}" \
         >> "$logFile"
 else
-    exitError+=('101')
+    exitError+=("${stamp}_101")
     cleanup
     quit
 fi
@@ -539,7 +539,7 @@ if [ "$dockerResult" -eq 0 ]; then
     echo -e "${info}${stamp} -- [INFO] Dovecot container stopped --${normal}" \
         >> "$logFile"
 else
-    exitError+=('102')
+    exitError+=("${stamp}_102")
     cleanup
     quit
 fi
@@ -554,7 +554,7 @@ if [ "$checkResult"=0 ]; then
     echo -e "${ok}${stamp} -- [SUCCESS] SQL successfully dumped --${normal}" \
         >> "$logFile"
 else
-    exitError+=('201')
+    exitError+=("${stamp}_201")
 fi
 
 
@@ -567,7 +567,7 @@ if [ "$checkResult"=0 ]; then
     echo -e "${ok}${stamp} -- [SUCCESS] redis state saved --${normal}" \
         >> "$logFile"
 else
-    exitError+=('202')
+    exitError+=("${stamp}_202")
 fi
 
 
@@ -584,7 +584,7 @@ mapfile -t borgConfig < "$borgDetails"
 echo -e "${op}${stamp} Verifying supplied borg configuration variables..." \
     "${normal}" >> "$logFile"
 if [ -z "${borgConfig[0]}" ]; then
-    exitError+=('210')
+    exitError+=("${stamp}_210")
     cleanup
     quit
 else
@@ -593,7 +593,7 @@ else
     checkResult="$?"
     if [ "$checkResult" = "1" ]; then
         # borg base directory specified could not be found
-        exitError+=('210')
+        exitError+=("${stamp}_210")
         cleanup
         quit
     fi
@@ -602,7 +602,7 @@ else
 fi
 # check: path to SSH keyfile
 if [ -z "${borgConfig[1]}" ]; then
-    exitError+=('211')
+    exitError+=("${stamp}_211")
     cleanup
     quit
 else
@@ -610,7 +610,7 @@ else
     checkResult="$?"
     if [ "$checkResult" = 1 ]; then
         # SSH keyfile specified could not be found
-        exitError+=('211')
+        exitError+=("${stamp}_211")
         cleanup
         quit
     fi
@@ -619,7 +619,7 @@ else
 fi
 # check: name of borg repo
 if [ -z "${borgConfig[2]}" ]; then
-    exitError+=('212')
+    exitError+=("${stamp}_212")
     cleanup
     quit
 else
@@ -631,7 +631,7 @@ if [ -n "${borgConfig[3]}" ]; then
     echo -e "${op}${stamp} Borg SSH/REPO password... OK${normal}" >> "$logFile"
     export BORG_PASSPHRASE="${borgConfig[3]}"
 else
-    exitWarn+=('2111')
+    exitWarn+=("${stamp}_2111")
     # if the password was omitted by mistake, export a dummy password so borg
     # fails with an error instead of sitting and waiting for input
     export BORG_PASSPHRASE="DummyPasswordSoBorgFails"
@@ -647,7 +647,7 @@ if [ -n "${borgConfig[7]}" ]; then
     echo -e "${op}${stamp} Borg REMOTE path... OK${normal}" >> "$logFile"
     export BORG_REMOTE_PATH="${borgConfig[7]}"
 else
-    exitWarn+=('2112')
+    exitWarn+=("${stamp}_2112")
 fi
 
 ## If borgXtra exists, map contents to an array variable
@@ -662,14 +662,14 @@ if [ -n "$borgXtra" ]; then
         echo -e "${op}${stamp} Processed extra files list for inclusion in" \
             "borgbackup${normal}" >> "$logFile"
     else
-        exitWarn+=('2113')
+        exitWarn+=("${stamp}_2113")
     fi
 else
     # no extra locations specified
     echo -e "${op}${stamp} No additional locations specified for backup." \
         "Only Mailcow data and config files will be backed up.${normal}" \
             >> "$logFile"
-    exitWarn+=('2116')
+    exitWarn+=("${stamp}_2116")
 fi
 
 ## Check if borgExclude exists since borg will throw an error if it's missing
@@ -683,7 +683,7 @@ if [ -n "$borgExclude" ]; then
         # file not found, unset the variable so it's like it was not specified
         # in the first place and continue with backup
         unset borgExclude
-        exitWarn+=('2114')
+        exitWarn+=("${stamp}_2114")
     fi
 else
     echo -e "${op}${stamp} Exclusion pattern file not specified." \
@@ -715,7 +715,7 @@ if [ "$checkResult" = "1" ]; then
             "${normal}" >> "$logFile"
     else
         # problem creating folder and script will exit
-        exitError+=('215')
+        exitError+=("${stamp}_215")
         cleanup
         quit
     fi
@@ -767,13 +767,13 @@ if [ "$borgResult" -eq 0 ]; then
     echo -e "${ok}${stamp} -- [SUCCESS] Borg backup completed successfully --" \
         "${normal}" >> "$logFile"
 elif [ "$borgResult" -eq 1 ]; then
-    exitWarn+=('2200')
+    exitWarn+=("${stamp}_2200")
 elif [ "$borgResult" -ge 2 ]; then
-    exitError+=('220')
+    exitError+=("${stamp}_220")
     cleanup
     quit
 else
-    exitWarn+=('2201')
+    exitWarn+=("${stamp}_2201")
 fi
 
 ## Generate and execute borg prune
@@ -790,15 +790,15 @@ if [ -n "$borgPrune" ]; then
         echo -e "${ok}${stamp} -- [SUCCESS] Borg prune completed successfully" \
             "--${normal}" >> "$logFile"
     elif [ "$pruneResult" -eq 1 ]; then
-        exitWarn+=('2210')
+        exitWarn+=("${stamp}_2210")
     elif [ "$pruneResult" -ge 2 ]; then
-        exitError+=('221')
+        exitError+=("${stamp}_221")
     else
-        exitWarn+=('2212')
+        exitWarn+=("${stamp}_2212")
     fi
 else
     # parameters not defined... skip pruning
-    exitWarn+=('2115')
+    exitWarn+=("${stamp}_2115")
 fi
 
 
