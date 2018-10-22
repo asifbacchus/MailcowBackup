@@ -345,7 +345,7 @@ while getopts ':l:v5:w:b:m:d:1:2:' PARAMS; do
     case "$PARAMS" in
         l)
             # use provided location for logFile
-            logFile="${OPTARG}"
+            logFile="${OPTARG%/}"
             ;;
         v)
             # verbose output from Borg

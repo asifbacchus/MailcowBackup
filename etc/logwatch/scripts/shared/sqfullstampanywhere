@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+
+##########################################################################
+# $Id$
+##########################################################################
+
+###############################################################################
+## Filter dates in full-date-time international format, surrounded by square
+## brackets located anywhere on a given line
+## Format: '[%Y-%m-%d %H:%M:%S]'
+###############################################################################
+
+use Logwatch ':dates';
+
+my $Debug = $ENV{'LOGWATCH_DEBUG'} || 0;
+
+### Specify the format of the date/time stamp itself
+$SearchDate = TimeFilter('%Y-%m-%d %H:%M:%S');
+
+if ( $Debug > 5 ) {
+   print STDERR "DEBUG: Inside FullDateTime...\n";
+   print STDERR "DEBUG: Looking For: " . $SearchDate . "\n";
+}
+
+while (defined($ThisLine = <STDIN>)) {
+   ### specify the regex that defines how to find 'SearchDate'
+   if ($ThisLine =~ m/\[$SearchDate\] /o) {
+      print $ThisLine;
+   }
+}
+
+# vi: shiftwidth=3 syntax=perl tabstop=3 et
+# Local Variables:
+# mode: perl
+# perl-indent-level: 3
+# indent-tabs-mode: nil
+# End:

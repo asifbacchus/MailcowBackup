@@ -1,0 +1,8 @@
+<path to borgbackup base directory> /var/borgbackup
+<path to SSH private key for repo>  /var/borgbackup/sshPrivate.key
+<connection string to remote repo>  user@server-number.rsync.net:repoName/
+<password for SSH key/repo>         pAsSwOrd
+<path to file listing extra files>  /root/NCscripts/xtraLocations.borg
+<path to file with exclusions>      /root/NCscripts/excludeLocations.borg
+<purge timeframe options>           --keep-within=7d --keep-daily=30 --keep-weekly=12 --keep-monthly=-1
+<location of borg remote instance>  borg1
