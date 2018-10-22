@@ -57,7 +57,7 @@ This script automates the following tasks:
 
 Once you've either cloned this git or downloaded the release file, simply copy
 the files within the archive to whatever location(s) that work for your setup.
-I've stored the files in the git archive in a directory structure that should
+I've stored the files in this git archive in a directory structure that should
 match most default setups.  I suggest keeping the contents of the
 *'/root/scripts'* folder in that location since the root user must execute the
 script anyways.  If you edit the 503.html and mc_borg.details files in place,
@@ -80,12 +80,12 @@ accommodate a wide range of Mailcow setups.  The script pulls nearly all it's
 configuration from the Mailcow configuration files themselves, so it adapts to
 nearly all customizations you may have in your environment.  The script accepts
 several optional parameters to override its default or detected settings.  In
-addition, it reads easy to edit external plain-text files for borg settings so
+addition, it reads easy-to-edit external plain-text files for borg settings so
 you don't have to weed through the script code to supply things like passwords.
 
 **This script autodetects the location of your Mailcow configuration file. If
-you have multiple files with the same name on your system, the script will
-likely get confused and exit with an error**
+you have multiple files on your system with the same name as the configuration
+file, the script will likely get confused and exit with an error**
 
 ## Why this script must be run as root
 
@@ -101,7 +101,7 @@ You can run the script with the *'-?'* parameter to access the built-in help
 which explains the parameters.  However, the following is a more detailed
 explanation of each parameter and how to use them. **Note that any parameters
 needing a directory (webroot, log file location, etc.) can be entered with or
-without the trailing / since it's stripped by the script anyways.**
+without the trailing '/' since it's stripped by the script anyways.**
 
 General usage:
 
@@ -114,13 +114,13 @@ General usage:
 #### Docker container STOP timeout before error: -1 _number_
 
 The amount of time, in seconds, to wait for a docker container to STOP
-gracefully before aborting, logging and error and exiting the script.
+gracefully before aborting, logging the error and exiting the script.\
 **Default: _120_**
 
 #### Docker container START timeout before error: -2 _number_
 
 The amount of time, in seconds, to wait for a docker container to START
-before aborting, logging and error and exiting the script.
+before aborting, logging the error and exiting the script.\
 **Default: _180_**
 
 #### Path to 503 error page: -5 _/path/to/filename.html_
@@ -133,7 +133,7 @@ unavailable' while being backed up.  A sample 503 page is included for you.
 If you remove the default file or the one you specify is missing, a warning will
 be issued by the script but, it will continue executing.  More details on the
 503 notification can be found later in the [503
-functionality](#503-functionality) section of this document.
+functionality](#503-functionality) section of this document.\
 **Default: _scriptpath/503.html_**
 
 #### Path to borg details file: -b _/path/to/filename.file_
@@ -142,14 +142,14 @@ This is a text file that lays out various borg options such as repo name,
 password, additional files to include, exclusion patters, etc.  A sample file is
 included for your reference.  More details, including the *required order* of
 entries can be found later in this document in the [borg details
-file](#borg-details-file) section.
+file](#borg-details-file) section.\
 **Default: _scriptpath/mc_borg.details_**
 
 #### File name of docker-compose configuration file: -d _filename.file_
 
 This is the file name of your docker-compose configuration file that is used to
 build/start/stop containers.  This script will only search for this file within
-the same directory where your Mailcow configuration file is found.
+the same directory where your Mailcow configuration file is found.\
 **Default: _docker-compose.yml_**
 
 #### Log file location: -l _/path/to/filename.file_
@@ -157,7 +157,7 @@ the same directory where your Mailcow configuration file is found.
 If you have a particular place and filename you'd like this script to use for
 it's log, then you can specify it using this parameter.  I would recommend
 *'/var/log/backup.log'*. By default, the script will name the log file
-*scriptname*.log and will save it in the same directory as the script itself.
+*scriptname*.log and will save it in the same directory as the script itself.\
 **Default: _scriptpath/scriptname.log_**
 
 #### File name of Mailcow master configuration file: -m _filename.file_
@@ -169,7 +169,7 @@ your computer for either the default file name or the one you have provided.
 Upon finding it, the script will derive the file path and use that as the path
 in which to run all Mailcow/docker commands.  **Please do not have multiple
 files on your system with this name, the script WILL get confused and exit with
-an error**
+an error.\
 **Default: _mailcow.conf_**
 
 #### Verbose output from borg: -v (no arguments)
