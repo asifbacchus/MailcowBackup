@@ -394,7 +394,7 @@ done
 ## If not running as root, display error on console and exit
 if [ $(id -u) -ne 0 ]; then
     echo -e "\n${err}This script MUST be run as ROOT. Exiting.${normal}"
-    exit 2
+    exit 3
 fi
 
 ## Find mailcow configuration file so additional variables can be read
