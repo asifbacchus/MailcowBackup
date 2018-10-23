@@ -278,7 +278,7 @@ exclusions and will proceed with backing up all files specified.
 
 ### prune timeframe options
 
-Here you can let borg purge know how you want to manage your backup history.
+Here you can let borg prune know how you want to manage your backup history.
 Consult the borg documentation and then copy the relevant options directly into
 this line including any spaces, etc.  The example file contains the following as
 a staring point:
@@ -485,7 +485,8 @@ readme in the *'/etc/logwatch'* folder of this git archive.
 
 If you don't really care how it works, you can just copy the files from this
 archive to your *'/etc/logwatch'* directory.  The directory structure is correct
-for a default Logwatch install on Debian/Ubuntu.
+for a default Logwatch install on Debian/Ubuntu.  You will have to update the
+log-group file to reflect the path to your script's log file.
 
 ### Remember to rotate your logs
 
