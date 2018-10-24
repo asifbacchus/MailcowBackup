@@ -547,7 +547,7 @@ fi
 
 ### Dump SQL
 echo -e "${op}${stamp} Dumping mailcow SQL database...${normal}" >> "$logFile"
-docker-compose exec mysql-mailcow mysqldump --default-character-set=utf8mb4 -u${DBUSER} -p${DBPASS} ${DBNAME} > "$sqlDumpDir/$sqlDumpFile" >> "$logFile" 2>&1
+docker-compose exec mysql-mailcow mysqldump --default-character-set=utf8mb4 -u${DBUSER} -p${DBPASS} ${DBNAME} > "$sqlDumpDir/$sqlDumpFile" 2>> "$logFile"
 checkResult=$(docker-compose exec mysql-mailcow echo "$?")
 # verify sql dump was successful
 if [ "$checkResult"=0 ]; then
