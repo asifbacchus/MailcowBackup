@@ -571,7 +571,7 @@ fi
 
 ### Dump SQL
 echo -e "${op}${stamp} Dumping mailcow SQL database...${normal}" >> "$logFile"
-docker-compose exec mysql-mailcow mysqldump --default-character-set=utf8mb4 \
+docker-compose exec -T mysql-mailcow mysqldump --default-character-set=utf8mb4 \
     -u${DBUSER} -p${DBPASS} ${DBNAME} > "$sqlDumpDir/$sqlDumpFile" \
     2>> "$logFile"
 dumpResult=$(docker-compose exec -T mysql-mailcow echo "$?")
@@ -609,7 +609,7 @@ checkExist ff "$dockerVolumeRedis/dump.rdb"
     fi
 ## Export redis
 echo -e "${op}${stamp} Saving redis state information...${normal}" >> "$logFile"
-docker-compose exec redis-mailcow redis-cli save >> "$logFile" 2>&1
+docker-compose exec -T redis-mailcow redis-cli save >> "$logFile" 2>&1
 saveResult=$(docker-compose exec -T redis-mailcow echo "$?")
 # verify save operation completed successfully
 if [ "$saveResult" = "0" ]; then
