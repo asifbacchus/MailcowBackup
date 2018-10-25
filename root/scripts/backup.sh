@@ -197,7 +197,7 @@ function cleanup {
     ## restart mailflow docker containers
     # start and verify postfix
     operateDocker start postfix
-    if [ "$dockerResult" = "true" ]; then
+    if [ "$dockerResultState" = "true" ]; then
         echo -e "${info}${stamp} -- [INFO] Postfix container is running --" \
             "${normal}" >> "$logFile"
     else
@@ -205,7 +205,7 @@ function cleanup {
     fi
     # start and verify dovecot
     operateDocker start dovecot
-    if [ "$dockerResult" = "true" ]; then
+    if [ "$dockerResultState" = "true" ]; then
         echo -e "${info}${stamp} -- [INFO] Dovecot container is running --" \
             "${normal}" >> "$logFile"
     else
