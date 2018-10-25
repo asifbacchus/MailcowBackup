@@ -232,7 +232,8 @@ elif [ "$1" = "start" ]; then
         >> "$logFile"
     docker-compose start ${2}-mailcow 2>> "$logFile"
     # verify
-    dockerResult=$(docker inspect -f '{{ .State.Running }}' ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
+    dockerResult=$(docker inspect -f '{{ .State.Running }}' \
+        ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
 fi
 }
 
