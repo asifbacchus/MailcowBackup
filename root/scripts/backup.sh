@@ -532,7 +532,7 @@ cd "$mailcowPath"
 ## Stop postfix-mailcow container
 operateDocker stop postfix
 # process result
-if [ "$dockerResultState" = "False" ] && [ "$dockerResultExit" -eq 0 ]; then
+if [ "$dockerResultState" = "false" ] && [ "$dockerResultExit" -eq 0 ]; then
     echo -e "${info}${stamp} -- [INFO] Postfix container stopped --${normal}" \
         >> "$logFile"
 else
@@ -543,7 +543,7 @@ fi
 ## Stop dovecot-mailcow container
 operateDocker stop dovecot
 # process result
-if [ "$dockerResultState" = "False" ] && [ "$dockerResult" -eq 0 ]; then
+if [ "$dockerResultState" = "false" ] && [ "$dockerResultExit" -eq 0 ]; then
     echo -e "${info}${stamp} -- [INFO] Dovecot container stopped --${normal}" \
         >> "$logFile"
 else
