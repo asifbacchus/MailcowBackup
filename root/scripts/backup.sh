@@ -221,8 +221,12 @@ if [ "$1" = "stop" ]; then
         >> "$logFile"
     docker-compose stop --timeout ${dockerStopTimeout} ${2}-mailcow \
         2>> "$logFile"
-    # verify
-    dockerResult=$(docker inspect -f '{{ .State.ExitCode }}' ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
+    # verify container stopped (should return true)
+    dockerResultStop1=$(docker inspect -f '{{ .State.Running }}' \
+        ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
+    # verify clean stop (exit code 0)
+    dockerResultStop2=$(docker inspect -f '{{ .State.ExitCode }}' \
+        ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
 elif [ "$1" = "start" ]; then
     echo -e "${op}${stamp} Starting ${2}-mailcow container...${normal}" \
         >> "$logFile"
