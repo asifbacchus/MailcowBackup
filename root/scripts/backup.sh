@@ -580,14 +580,14 @@ checkExist fs "$sqlDumpDir/$sqlDumpFile"
 ### Save redis state
 echo -e "${op}${stamp} Saving redis state information...${normal}" >> "$logFile"
 docker-compose exec redis-mailcow redis-cli save >> "$logFile" 2>&1
-checkResult=$(docker-compose exec -T redis-mailcow echo "$?")
-# Verify save was successful
-if [ "$checkResult" = 0 ]; then
+## redis outputs a simple 'OK' if the export succeeded, so check the log file
+## for a line just written that says that specifically
+if [ $(tail -1 "$logFile") = "OK" ];
     echo -e "${ok}${stamp} -- [SUCCESS] redis state saved --${normal}" \
         >> "$logFile"
-else
-    exitError+=("${stamp}_202")
-fi
+    else
+        exitError+=("${stamp}_202")
+    fi
 
 
 ### Call borgbackup to copy actual files
