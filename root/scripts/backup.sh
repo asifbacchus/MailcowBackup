@@ -222,17 +222,17 @@ if [ "$1" = "stop" ]; then
     docker-compose stop --timeout ${dockerStopTimeout} ${2}-mailcow \
         2>> "$logFile"
     # verify container stopped (should return true)
-    dockerResultStop1=$(docker inspect -f '{{ .State.Running }}' \
+    dockerResultState=$(docker inspect -f '{{ .State.Running }}' \
         ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
     # verify clean stop (exit code 0)
-    dockerResultStop2=$(docker inspect -f '{{ .State.ExitCode }}' \
+    dockerResultExit=$(docker inspect -f '{{ .State.ExitCode }}' \
         ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
 elif [ "$1" = "start" ]; then
     echo -e "${op}${stamp} Starting ${2}-mailcow container...${normal}" \
         >> "$logFile"
     docker-compose start ${2}-mailcow 2>> "$logFile"
     # verify
-    dockerResult=$(docker inspect -f '{{ .State.Running }}' \
+    dockerResultState=$(docker inspect -f '{{ .State.Running }}' \
         ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
 fi
 }
@@ -532,7 +532,7 @@ cd "$mailcowPath"
 ## Stop postfix-mailcow container
 operateDocker stop postfix
 # process result
-if [ "$dockerResult" -eq 0 ]; then
+if [ "$dockerResultState" = "False" ] && [ "$dockerResultExit" -eq 0 ]; then
     echo -e "${info}${stamp} -- [INFO] Postfix container stopped --${normal}" \
         >> "$logFile"
 else
@@ -543,7 +543,7 @@ fi
 ## Stop dovecot-mailcow container
 operateDocker stop dovecot
 # process result
-if [ "$dockerResult" -eq 0 ]; then
+if [ "$dockerResultState" = "False" ] && [ "$dockerResult" -eq 0 ]; then
     echo -e "${info}${stamp} -- [INFO] Dovecot container stopped --${normal}" \
         >> "$logFile"
 else
