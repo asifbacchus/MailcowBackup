@@ -461,6 +461,12 @@ export logFile="$logFile"
 ### Export docker container startup timeout variable
 export COMPOSE_HTTP_TIMEOUT=${dockerStartTimeout}
 
+## Get docker volume paths on filesystem
+dockerVolumeMail=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_vmail-vol-1)
+dockerVolumeRspamd=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_rspamd-vol-1)
+dockerVolumePostfix=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_postfix-vol-1)
+dockerVolumeRedis=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_redis-vol-1)
+dockerVolumeCrypt=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_crypt-vol-1)
 
 ### Create sqlDump temporary directory and sqlDumpFile name
 sqlDumpDir=$( mktemp -d )
