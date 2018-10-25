@@ -590,7 +590,7 @@ echo -e "${op}${stamp} Cleaning up old redis state backup...${normal}" \
     >> "$logFile"
 checkExist ff "$dockerVolumeRedis/dump.rdb"
     checkResult="$?"
-    if [ "$checkResult" = "0" ]
+    if [ "$checkResult" = "0" ]; then
         echo -e "${lit}${stamp} Old redis backup found.${normal}" >> "$logFile"
         echo -e "${op}Deleting...${normal}" >> "$logFile"
         rm -f "$dockerVolumeRedis/dump.rdb" 2>> "$logFile"
