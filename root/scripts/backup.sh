@@ -565,15 +565,17 @@ fi
 ### Dump SQL
 echo -e "${op}${stamp} Dumping mailcow SQL database...${normal}" >> "$logFile"
 docker-compose exec mysql-mailcow mysqldump --default-character-set=utf8mb4 -u${DBUSER} -p${DBPASS} ${DBNAME} > "$sqlDumpDir/$sqlDumpFile" 2>> "$logFile"
-checkResult=$(docker-compose exec -T mysql-mailcow echo $?)
-# verify sql dump was successful
-if [ "$checkResult" = 0 ]; then
-    echo -e "${ok}${stamp} -- [SUCCESS] SQL successfully dumped --${normal}" \
-        >> "$logFile"
-else
-    exitError+=("${stamp}_201")
-fi
-
+## error checking sqldump within the container in a cron-friendly manner is a
+## nightmare, so let's just see if a non-empty file with the expected name was
+## created
+checkExist fs "$sqlDumpDir/$sqlDumpFile"
+    checkResult="$?"
+    if [ "$checkResult" = "0" ]; then
+        echo -e "${ok}${stamp} -- [SUCCESS] SQL successfully dumped --" \
+            "${normal}" >> "$logFile"
+    else
+        exitError+=("${stamp}_201")
+    fi
 
 ### Save redis state
 echo -e "${op}${stamp} Saving redis state information...${normal}" >> "$logFile"
