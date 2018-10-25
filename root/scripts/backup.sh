@@ -468,6 +468,7 @@ dockerVolumePostfix=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PRO
 dockerVolumeRedis=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_redis-vol-1)
 dockerVolumeCrypt=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_crypt-vol-1)
 
+
 ### Create sqlDump temporary directory and sqlDumpFile name
 sqlDumpDir=$( mktemp -d )
 sqlDumpFile="backup-`date +%Y%m%d_%H%M%S`.sql"
@@ -584,12 +585,29 @@ checkExist fs "$sqlDumpDir/$sqlDumpFile"
     fi
 
 ### Save redis state
+## Delete any existing redis dump file otherwise our check will be useless
+echo -e "${op}${stamp} Cleaning up old redis state backup...${normal}" \
+    >> "$logFile"
+checkExist ff "$dockerVolumeRedis/dump.rdb"
+    checkResult="$?"
+    if [ "$checkResult" = "0" ]
+        echo -e "${lit}${stamp} Old redis backup found.${normal}" >> "$logFile"
+        echo -e "${op}Deleting...${normal}" >> "$logFile"
+        rm -f "$dockerVolumeRedis/dump.rdb" 2>> "$logFile"
+        echo -e "${op}${stamp}...done${normal}" >> "$logFile"
+    else
+        echo -e "${op}${stamp} No old redis backup found${normal}" \
+            >> "$logFile"
+    fi
+## Export redis
 echo -e "${op}${stamp} Saving redis state information...${normal}" >> "$logFile"
 docker-compose exec redis-mailcow redis-cli save >> "$logFile" 2>&1
-## redis outputs a simple 'OK' if the export succeeded, so check the log file
-## for a line just written that says that specifically
-if [ $(tail -1 "$logFile") = "OK" ];
-    echo -e "${ok}${stamp} -- [SUCCESS] redis state saved --${normal}" \
+## although redis returns an 'OK' if successful, seemingly nothing can test for
+## this... so let's just verify the dump file was written to disk
+checkExist fs "$dockerVolumeRedis/dump.rdb"
+    checkResult="$?"
+    if [ "$checkResult" = "0" ]; then
+        echo -e "${ok}${stamp} -- [SUCCESS] redis state saved --${normal}" \
         >> "$logFile"
     else
         exitError+=("${stamp}_202")
@@ -751,14 +769,6 @@ else
 fi
 # export TMPDIR environment variable
 export TMPDIR="${BORG_BASE_DIR}/tmp"
-
-
-## Get docker volume paths on filesystem for inclusion in backup
-dockerVolumeMail=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_vmail-vol-1)
-dockerVolumeRspamd=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_rspamd-vol-1)
-dockerVolumePostfix=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_postfix-vol-1)
-dockerVolumeRedis=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_redis-vol-1)
-dockerVolumeCrypt=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_crypt-vol-1)
 
 
 ## Generate and execute borg
