@@ -144,6 +144,15 @@ function checkExist {
             # not found
             return 1
         fi
+    elif [ "$1" = "fs" ]; then
+        # find file > 0 bytes
+        if [ -s "$2" ]; then
+            # found
+            return 0
+        else
+            # not found
+            return 1
+        fi
     elif [ "$1" = "fd" ]; then
         # find directory
         if [ -d "$2" ]; then
