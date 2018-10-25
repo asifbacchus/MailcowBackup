@@ -593,16 +593,16 @@ checkExist fs "$sqlDumpDir/$sqlDumpFile"
     fi
 
 ### Save redis state
-## Delete any existing redis dump file otherwise our check will be useless
+## Delete any existing redis dump file otherwise our file check will be useless
 echo -e "${op}${stamp} Cleaning up old redis state backup...${normal}" \
     >> "$logFile"
 checkExist ff "$dockerVolumeRedis/dump.rdb"
     checkResult="$?"
     if [ "$checkResult" = "0" ]; then
-        echo -e "${lit}${stamp} Old redis backup found.${normal}" >> "$logFile"
-        echo -e "${op}Deleting...${normal}" >> "$logFile"
+        echo -e "${lit}${stamp} Old redis backup found. ${op}Deleting..." \
+            "${normal}" >> "$logFile"
         rm -f "$dockerVolumeRedis/dump.rdb" 2>> "$logFile"
-        echo -e "${op}${stamp}...done${normal}" >> "$logFile"
+        echo -e "${op}${stamp} ...done${normal}" >> "$logFile"
     else
         echo -e "${op}${stamp} No old redis backup found${normal}" \
             >> "$logFile"
@@ -610,8 +610,15 @@ checkExist ff "$dockerVolumeRedis/dump.rdb"
 ## Export redis
 echo -e "${op}${stamp} Saving redis state information...${normal}" >> "$logFile"
 docker-compose exec redis-mailcow redis-cli save >> "$logFile" 2>&1
-## although redis returns an 'OK' if successful, seemingly nothing can test for
-## this... so let's just verify the dump file was written to disk
+saveResult=$(docker-compose exec -T redis-mailcow echo "$?")
+# verify save operation completed successfully
+if [ "$saveResult" = "0" ]; then
+    echo -e "${info}${stamp} -- [INFO] redis save-state successful --" \
+        "${normal}" >> "$logFile"
+else
+    exitError+=("${stamp}_202")
+fi
+## verify save-file written to disk
 checkExist fs "$dockerVolumeRedis/dump.rdb"
     checkResult="$?"
     if [ "$checkResult" = "0" ]; then
