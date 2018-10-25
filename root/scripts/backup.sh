@@ -438,6 +438,9 @@ echo -e "${info}${stamp} -- [INFO] using ${lit}${dockerComposeFilePath}" \
 ### Import additional variables from mailcow configuration file
 source "${mailcowConfigFilePath}"
 
+### Export PATH so this script can access all docker and docker-compose commands
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
 ### Export logFile variable for use by Borg
 export logFile="$logFile"
 
