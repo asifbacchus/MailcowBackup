@@ -12,7 +12,6 @@ lit="\e[93m"
 op="\e[39m"
 info="\e[96m"
 note="\e[95m"
-stamp="[`date +%Y-%m-%d` `date +%H:%M:%S`]"
 
 
 ### Functions ###
@@ -99,6 +98,10 @@ function scriptHelp {
     echo -e "for more information on this script.${normal}\n"
     # exit with code 1 -- there is no use logging this
     exit 1
+}
+
+function stamp {
+    echo `date +%F" "%T`
 }
 
 ### quit -- exit the script after logging any errors, warnings, etc.
