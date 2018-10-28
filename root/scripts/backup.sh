@@ -120,7 +120,7 @@ function quit {
     fi
     if [ -z "${exitError}" ]; then
         # exit cleanly
-        echo -e "${note}${stamp} -- ${scriptName} completed" \
+        echo -e "${note}[$(stamp)] -- ${scriptName} completed" \
             "--${normal}" >> "$logFile"
         exit 0
     else
@@ -177,10 +177,10 @@ function cleanup {
     checkResult="$?"
     if [ "$checkResult" = "0" ]; then
         # directory still exists
-        exitWarn+=("${stamp}_111")
+        exitWarn+=("[$(stamp)]_111")
     else
         # directory removed
-        echo -e "${op}${stamp} Removed SQL temp directory${normal}" \
+        echo -e "${op}[$(stamp)] Removed SQL temp directory${normal}" \
             >> "$logFile"
     fi
 
@@ -188,21 +188,21 @@ function cleanup {
     # check value of 'clean503' to see if this is necessary (=1) otherwise, skip
     if [ "$clean503" = "1" ]; then
         # proceed with cleanup
-        echo -e "${op}${stamp} Removing 503 error page..." >> "$logFile"
+        echo -e "${op}[$(stamp)] Removing 503 error page..." >> "$logFile"
         rm -f "$webroot/$err503File" >> "$logFile" 2>&1
         # verify file is actually gone
         checkExist ff "$webroot/$err503File"
         checkResult="$?"
         if [ "$checkResult" = "0" ]; then
             # file still exists
-            exitWarn+=("${stamp}_5030")
+            exitWarn+=("[$(stamp)]_5030")
         else
             # file removed
-            echo -e "${info}${stamp} -- [INFO] 503 page removed from webroot" \
+            echo -e "${info}[$(stamp)] -- [INFO] 503 page removed from webroot" \
                 "--${normal}" >> "$logFile"
         fi
     else
-        echo -e "${op}${stamp} 503 error page never copied to webroot," \
+        echo -e "${op}[$(stamp)] 503 error page never copied to webroot," \
             "nothing to cleanup" >> "$logFile"
     fi
 
@@ -210,18 +210,18 @@ function cleanup {
     # start and verify postfix
     operateDocker start postfix
     if [ "$dockerResultState" = "true" ]; then
-        echo -e "${info}${stamp} -- [INFO] Postfix container is running --" \
+        echo -e "${info}[$(stamp)] -- [INFO] Postfix container is running --" \
             "${normal}" >> "$logFile"
     else
-        exitError+=("${stamp}_103")
+        exitError+=("[$(stamp)]_103")
     fi
     # start and verify dovecot
     operateDocker start dovecot
     if [ "$dockerResultState" = "true" ]; then
-        echo -e "${info}${stamp} -- [INFO] Dovecot container is running --" \
+        echo -e "${info}[$(stamp)] -- [INFO] Dovecot container is running --" \
             "${normal}" >> "$logFile"
     else
-        exitError+=("${stamp}_104")
+        exitError+=("[$(stamp)]_104")
     fi
 }
 
@@ -229,7 +229,7 @@ function cleanup {
 function operateDocker {
 # determine action to take
 if [ "$1" = "stop" ]; then
-    echo -e "${op}${stamp} Stopping ${2}-mailcow container...${normal}" \
+    echo -e "${op}[$(stamp)] Stopping ${2}-mailcow container...${normal}" \
         >> "$logFile"
     docker-compose stop --timeout ${dockerStopTimeout} ${2}-mailcow \
         2>> "$logFile"
@@ -240,7 +240,7 @@ if [ "$1" = "stop" ]; then
     dockerResultExit=$(docker inspect -f '{{ .State.ExitCode }}' \
         ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
 elif [ "$1" = "start" ]; then
-    echo -e "${op}${stamp} Starting ${2}-mailcow container...${normal}" \
+    echo -e "${op}[$(stamp)] Starting ${2}-mailcow container...${normal}" \
         >> "$logFile"
     docker-compose start ${2}-mailcow 2>> "$logFile"
     # verify
@@ -445,11 +445,11 @@ fi
 
 
 ### Log start of script operations
-echo -e "${note}${stamp} --- Start $scriptName execution ---${normal}" \
+echo -e "${note}[$(stamp)] --- Start $scriptName execution ---${normal}" \
     >> "$logFile"
-echo -e "${info}${stamp} -- [INFO] using ${lit}${mailcowConfigFilePath}" \
+echo -e "${info}[$(stamp)] -- [INFO] using ${lit}${mailcowConfigFilePath}" \
     >> "$logFile"
-echo -e "${info}${stamp} -- [INFO] using ${lit}${dockerComposeFilePath}" \
+echo -e "${info}[$(stamp)] -- [INFO] using ${lit}${dockerComposeFilePath}" \
     >> "$logFile"
 
 ### Import additional variables from mailcow configuration file
@@ -475,7 +475,7 @@ dockerVolumeCrypt=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJE
 ### Create sqlDump temporary directory and sqlDumpFile name
 sqlDumpDir=$( mktemp -d )
 sqlDumpFile="backup-`date +%Y%m%d_%H%M%S`.sql"
-echo -e "${info}${stamp} -- [INFO] mySQL dump file will be stored" \
+echo -e "${info}[$(stamp)] -- [INFO] mySQL dump file will be stored" \
     "at: ${lit}${sqlDumpDir}/${sqlDumpFile}${normal}" >> "$logFile"
 
 
@@ -488,9 +488,9 @@ echo -e "${info}${stamp} -- [INFO] mySQL dump file will be stored" \
 ## Check if webroot has been specified, if not, skip this entire section since there is nowhere to copy the 503 file.
 if [ -z "$webroot" ]; then
     # no webroot path provided
-    echo -e "${info}${stamp} -- [INFO] ${warn503} --${normal}" \
+    echo -e "${info}[$(stamp)] -- [INFO] ${warn503} --${normal}" \
         >> "$logFile"
-    exitWarn+=("${stamp}_5031")
+    exitWarn+=("[$(stamp)]_5031")
     clean503=0
 else
     # verify webroot actually exists
@@ -498,41 +498,41 @@ else
     checkResult="$?"
     if [ "$checkResult" = "1" ]; then
         # webroot directory specified could not be found
-        echo -e "${info}${stamp} -- [INFO] ${warn503} --${normal}" \
+        echo -e "${info}[$(stamp)] -- [INFO] ${warn503} --${normal}" \
             >> "$logFile"
-        exitWarn+=("${stamp}_5032")
+        exitWarn+=("[$(stamp)]_5032")
         clean503=0
     else
         # webroot exists
-        echo -e "${op}${stamp} Using webroot: ${lit}${webroot}${normal}" \
+        echo -e "${op}[$(stamp)] Using webroot: ${lit}${webroot}${normal}" \
             >> "$logFile"
         # Verify 503 file existance at given path
         checkExist ff "$err503Path"
         checkResult="$?"
         if [ "$checkResult" = "1" ]; then
             # 503 file could not be found
-            echo -e "${info}${stamp} -- [INFO] ${warn503} --${normal}" \
+            echo -e "${info}[$(stamp)] -- [INFO] ${warn503} --${normal}" \
                 >> "$logFile"
-            exitWarn+=("${stamp}_5033")
+            exitWarn+=("[$(stamp)]_5033")
             clean503=0
         else
             # 503 file exists and webroot is valid. Let's copy it!
-            echo -e "${op}${stamp} ${err503File} found at ${lit}${err503Path}" \
+            echo -e "${op}[$(stamp)] ${err503File} found at ${lit}${err503Path}" \
                 "${normal}" >> "$logFile"
-            echo -e "${op}${stamp} Copying 503 error page to webroot..." \
+            echo -e "${op}[$(stamp)] Copying 503 error page to webroot..." \
                 "${normal}" >> "$logFile"
             cp "${err503Path}" "$webroot/" >> "$logFile" 2>&1
             copyResult="$?"
             # verify copy was successful
                 if [ "$copyResult" = "1" ]; then
                     # copy was unsuccessful
-                    echo -e "${info}${stamp} -- [INFO] ${warn503} --${normal}" \
+                    echo -e "${info}[$(stamp)] -- [INFO] ${warn503} --${normal}" \
                         >> "$logFile"
-                    exitWarn+=("${stamp}_5035")
+                    exitWarn+=("[$(stamp)]_5035")
                     clean503=0
                 else
                 # copy was successful
-                echo -e "${info}${stamp} -- [INFO] 503 error page" \
+                echo -e "${info}[$(stamp)] -- [INFO] 503 error page" \
                     "successfully copied to webroot --${normal}" >> "$logFile"
                 clean503=1
                 fi
@@ -552,10 +552,10 @@ cd "$mailcowPath"
 operateDocker stop postfix
 # process result
 if [ "$dockerResultState" = "false" ] && [ "$dockerResultExit" -eq 0 ]; then
-    echo -e "${info}${stamp} -- [INFO] Postfix container stopped --${normal}" \
+    echo -e "${info}[$(stamp)] -- [INFO] Postfix container stopped --${normal}" \
         >> "$logFile"
 else
-    exitError+=("${stamp}_101")
+    exitError+=("[$(stamp)]_101")
     cleanup
     quit
 fi
@@ -563,77 +563,77 @@ fi
 operateDocker stop dovecot
 # process result
 if [ "$dockerResultState" = "false" ] && [ "$dockerResultExit" -eq 0 ]; then
-    echo -e "${info}${stamp} -- [INFO] Dovecot container stopped --${normal}" \
+    echo -e "${info}[$(stamp)] -- [INFO] Dovecot container stopped --${normal}" \
         >> "$logFile"
 else
-    exitError+=("${stamp}_102")
+    exitError+=("[$(stamp)]_102")
     cleanup
     quit
 fi
 
 
 ### Dump SQL
-echo -e "${op}${stamp} Dumping mailcow SQL database...${normal}" >> "$logFile"
+echo -e "${op}[$(stamp)] Dumping mailcow SQL database...${normal}" >> "$logFile"
 docker-compose exec -T mysql-mailcow mysqldump --default-character-set=utf8mb4 \
     -u${DBUSER} -p${DBPASS} ${DBNAME} > "$sqlDumpDir/$sqlDumpFile" \
     2>> "$logFile"
 dumpResult=$(docker-compose exec -T mysql-mailcow echo "$?")
 ## very mysqldump completed successfully
 if [ "$dumpResult" = "0" ]; then
-    echo -e "${info}${stamp} -- [INFO] mySQLdump completed successfully --" \
+    echo -e "${info}[$(stamp)] -- [INFO] mySQLdump completed successfully --" \
         "${normal}" >> "$logFile"
 else
-    exitError+=("${stamp}_201")
+    exitError+=("[$(stamp)]_201")
 fi
 ## verify the dump file was actually written to disk
 checkExist fs "$sqlDumpDir/$sqlDumpFile"
     checkResult="$?"
     if [ "$checkResult" = "0" ]; then
-        echo -e "${ok}${stamp} -- [SUCCESS] SQL successfully dumped --" \
+        echo -e "${ok}[$(stamp)] -- [SUCCESS] SQL successfully dumped --" \
             "${normal}" >> "$logFile"
     else
-        exitError+=("${stamp}_201")
+        exitError+=("[$(stamp)]_201")
     fi
 
 ### Save redis state
 ## Delete any existing redis dump file otherwise our file check will be useless
-echo -e "${op}${stamp} Cleaning up old redis state backup...${normal}" \
+echo -e "${op}[$(stamp)] Cleaning up old redis state backup...${normal}" \
     >> "$logFile"
 checkExist ff "$dockerVolumeRedis/dump.rdb"
     checkResult="$?"
     if [ "$checkResult" = "0" ]; then
-        echo -e "${lit}${stamp} Old redis backup found. ${op}Deleting..." \
+        echo -e "${lit}[$(stamp)] Old redis backup found. ${op}Deleting..." \
             "${normal}" >> "$logFile"
         rm -f "$dockerVolumeRedis/dump.rdb" 2>> "$logFile"
-        echo -e "${op}${stamp} ...done${normal}" >> "$logFile"
+        echo -e "${op}[$(stamp)] ...done${normal}" >> "$logFile"
     else
-        echo -e "${op}${stamp} No old redis backup found${normal}" \
+        echo -e "${op}[$(stamp)] No old redis backup found${normal}" \
             >> "$logFile"
     fi
 ## Export redis
-echo -e "${op}${stamp} Saving redis state information...${normal}" >> "$logFile"
+echo -e "${op}[$(stamp)] Saving redis state information...${normal}" >> "$logFile"
 docker-compose exec -T redis-mailcow redis-cli save >> "$logFile" 2>&1
 saveResult=$(docker-compose exec -T redis-mailcow echo "$?")
 # verify save operation completed successfully
 if [ "$saveResult" = "0" ]; then
-    echo -e "${info}${stamp} -- [INFO] redis save-state successful --" \
+    echo -e "${info}[$(stamp)] -- [INFO] redis save-state successful --" \
         "${normal}" >> "$logFile"
 else
-    exitError+=("${stamp}_202")
+    exitError+=("[$(stamp)]_202")
 fi
 ## verify save-file written to disk
 checkExist fs "$dockerVolumeRedis/dump.rdb"
     checkResult="$?"
     if [ "$checkResult" = "0" ]; then
-        echo -e "${ok}${stamp} -- [SUCCESS] redis state saved --${normal}" \
+        echo -e "${ok}[$(stamp)] -- [SUCCESS] redis state saved --${normal}" \
         >> "$logFile"
     else
-        exitError+=("${stamp}_202")
+        exitError+=("[$(stamp)]_202")
     fi
 
 
 ### Call borgbackup to copy actual files
-echo -e "${op}${stamp} Pre-backup tasks completed, calling borgbackup..." \
+echo -e "${op}[$(stamp)] Pre-backup tasks completed, calling borgbackup..." \
     "${normal}" >> "$logFile"
 
 ## Get borgbackup settings and repo details
@@ -642,10 +642,10 @@ mapfile -t borgConfig < "$borgDetails"
 ## check if any required borg configuration variables in defintion file are
 ## empty and exit with error, otherwise, map array items to variables
 # check: borg base directory
-echo -e "${op}${stamp} Verifying supplied borg configuration variables..." \
+echo -e "${op}[$(stamp)] Verifying supplied borg configuration variables..." \
     "${normal}" >> "$logFile"
 if [ -z "${borgConfig[0]}" ]; then
-    exitError+=("${stamp}_210")
+    exitError+=("[$(stamp)]_210")
     cleanup
     quit
 else
@@ -654,16 +654,16 @@ else
     checkResult="$?"
     if [ "$checkResult" = "1" ]; then
         # borg base directory specified could not be found
-        exitError+=("${stamp}_210")
+        exitError+=("[$(stamp)]_210")
         cleanup
         quit
     fi
-    echo -e "${op}${stamp} Borg base dir... OK${normal}" >> "$logFile"
+    echo -e "${op}[$(stamp)] Borg base dir... OK${normal}" >> "$logFile"
     export BORG_BASE_DIR="${borgConfig[0]%/}"
 fi
 # check: path to SSH keyfile
 if [ -z "${borgConfig[1]}" ]; then
-    exitError+=("${stamp}_211")
+    exitError+=("[$(stamp)]_211")
     cleanup
     quit
 else
@@ -671,28 +671,28 @@ else
     checkResult="$?"
     if [ "$checkResult" = 1 ]; then
         # SSH keyfile specified could not be found
-        exitError+=("${stamp}_211")
+        exitError+=("[$(stamp)]_211")
         cleanup
         quit
     fi
-    echo -e "${op}${stamp} Borg SSH key... OK${normal}" >> "$logFile"
+    echo -e "${op}[$(stamp)] Borg SSH key... OK${normal}" >> "$logFile"
     export BORG_RSH="ssh -i ${borgConfig[1]}"
 fi
 # check: name of borg repo
 if [ -z "${borgConfig[2]}" ]; then
-    exitError+=("${stamp}_212")
+    exitError+=("[$(stamp)]_212")
     cleanup
     quit
 else
-    echo -e "${op}${stamp} Borg REPO name... OK${normal}" >> "$logFile"
+    echo -e "${op}[$(stamp)] Borg REPO name... OK${normal}" >> "$logFile"
     export BORG_REPO="${borgConfig[2]}"
 fi
 # repo password
 if [ -n "${borgConfig[3]}" ]; then
-    echo -e "${op}${stamp} Borg SSH/REPO password... OK${normal}" >> "$logFile"
+    echo -e "${op}[$(stamp)] Borg SSH/REPO password... OK${normal}" >> "$logFile"
     export BORG_PASSPHRASE="${borgConfig[3]}"
 else
-    exitWarn+=("${stamp}_2111")
+    exitWarn+=("[$(stamp)]_2111")
     # if the password was omitted by mistake, export a dummy password so borg
     # fails with an error instead of sitting and waiting for input
     export BORG_PASSPHRASE="DummyPasswordSoBorgFails"
@@ -705,32 +705,32 @@ borgExclude="${borgConfig[5]}"
 borgPrune="${borgConfig[6]}"
 # export: borg remote path (if not blank)
 if [ -n "${borgConfig[7]}" ]; then
-    echo -e "${op}${stamp} Borg REMOTE path... OK${normal}" >> "$logFile"
+    echo -e "${op}[$(stamp)] Borg REMOTE path... OK${normal}" >> "$logFile"
     export BORG_REMOTE_PATH="${borgConfig[7]}"
 else
-    exitWarn+=("${stamp}_2112")
+    exitWarn+=("[$(stamp)]_2112")
 fi
 
 ## If borgXtra exists, map contents to an array variable
 if [ -n "$borgXtra" ]; then
-    echo -e "${op}${stamp} Processing referenced extra files list for" \
+    echo -e "${op}[$(stamp)] Processing referenced extra files list for" \
         "borgbackup to include in backup${normal}" >> "$logFile"
     checkExist ff "$borgXtra"
     checkResult="$?"
     if [ "$checkResult" = "0" ]; then
-        echo -e "${op}${stamp} Found ${lit}${borgXtra}${normal}" >> "$logFile"
+        echo -e "${op}[$(stamp)] Found ${lit}${borgXtra}${normal}" >> "$logFile"
         mapfile -t xtraFiles < "$borgXtra"
-        echo -e "${op}${stamp} Processed extra files list for inclusion in" \
+        echo -e "${op}[$(stamp)] Processed extra files list for inclusion in" \
             "borgbackup${normal}" >> "$logFile"
     else
-        exitWarn+=("${stamp}_2113")
+        exitWarn+=("[$(stamp)]_2113")
     fi
 else
     # no extra locations specified
-    echo -e "${op}${stamp} No additional locations specified for backup." \
+    echo -e "${op}[$(stamp)] No additional locations specified for backup." \
         "Only Mailcow data and config files will be backed up.${normal}" \
             >> "$logFile"
-    exitWarn+=("${stamp}_2116")
+    exitWarn+=("[$(stamp)]_2116")
 fi
 
 ## Check if borgExclude exists since borg will throw an error if it's missing
@@ -738,16 +738,16 @@ if [ -n "$borgExclude" ]; then
     checkExist ff "$borgExclude"
     checkResult="$?"
     if [ "$checkResult" = "0" ]; then
-            echo -e "${op}${stamp} Found ${lit}${borgExclude}${normal}" \
+            echo -e "${op}[$(stamp)] Found ${lit}${borgExclude}${normal}" \
                 >> "$logFile"
     else
         # file not found, unset the variable so it's like it was not specified
         # in the first place and continue with backup
         unset borgExclude
-        exitWarn+=("${stamp}_2114")
+        exitWarn+=("[$(stamp)]_2114")
     fi
 else
-    echo -e "${op}${stamp} Exclusion pattern file not specified." \
+    echo -e "${op}[$(stamp)] Exclusion pattern file not specified." \
         "No exclusions will be processed${normal}" >> "$logFile"
 fi
 
@@ -758,13 +758,13 @@ fi
 ## the 'noexec' option for security.  Thus, we will use/create a 'tmp' folder
 ## within the BORG_BASE_DIR and instruct python to use that instead of /tmp
 # check if BORG_BASE_DIR/tmp exists, if not, create it
-echo -e "${op}${stamp} Checking for tmp directory at ${lit}${BORG_BASE_DIR}" \
+echo -e "${op}[$(stamp)] Checking for tmp directory at ${lit}${BORG_BASE_DIR}" \
     "${normal}" >> "$logFile"
 checkExist fd "$BORG_BASE_DIR/tmp"
 checkResult="$?"
 if [ "$checkResult" = "1" ]; then
     # folder not found
-    echo -e "${op}${stamp} tmp folder not found... creating${lit}" \
+    echo -e "${op}[$(stamp)] tmp folder not found... creating${lit}" \
         "${BORG_BASE_DIR}/tmp${normal}" >> "$logFile"
     mkdir "$BORG_BASE_DIR/tmp" 2>> "$logFile"
     # verify folder created
@@ -772,17 +772,17 @@ if [ "$checkResult" = "1" ]; then
     checkResult="$?"
     if [ "$checkResult" = "0" ]; then
         # folder exists
-        echo -e "${op}${stamp} tmp folder created within borg base directory" \
+        echo -e "${op}[$(stamp)] tmp folder created within borg base directory" \
             "${normal}" >> "$logFile"
     else
         # problem creating folder and script will exit
-        exitError+=("${stamp}_215")
+        exitError+=("[$(stamp)]_215")
         cleanup
         quit
     fi
 else
     # folder found
-    echo -e "${op}${stamp} tmp folder found within borg base directory" \
+    echo -e "${op}[$(stamp)] tmp folder found within borg base directory" \
         "${normal}" >> "$logFile"
 fi
 # export TMPDIR environment variable
@@ -793,7 +793,7 @@ export TMPDIR="${BORG_BASE_DIR}/tmp"
 # commandline depends on whether borgExclude is empty or not
 if [ -z "$borgExclude" ]; then
     # borgExclude is empty
-    echo -e "${bold}${op}${stamp} Executing borg without exclusions${normal}" \
+    echo -e "${bold}${op}[$(stamp)] Executing borg without exclusions${normal}" \
         >> "$logFile"
     borg --show-rc create ${borgCreateParams} ::`date +%Y-%m-%d_%H%M%S` \
         ${xtraFiles[@]} \
@@ -803,7 +803,7 @@ if [ -z "$borgExclude" ]; then
         2>> "$logFile"
 else
     # borgExclude is not empty
-    echo -e "${bold}${op}${stamp} Executing borg with exclusions${normal}" \
+    echo -e "${bold}${op}[$(stamp)] Executing borg with exclusions${normal}" \
         >> "$logFile"
     borg --show-rc create ${borgCreateParams} --exclude-from ${borgExclude} \
         ::`date +%Y-%m-%d_%H%M%S` \
@@ -817,54 +817,54 @@ fi
 ## Check status of borg operation
 borgResult="$?"
 if [ "$borgResult" -eq 0 ]; then
-    echo -e "${ok}${stamp} -- [SUCCESS] Borg backup completed successfully --" \
+    echo -e "${ok}[$(stamp)] -- [SUCCESS] Borg backup completed successfully --" \
         "${normal}" >> "$logFile"
 elif [ "$borgResult" -eq 1 ]; then
-    exitWarn+=("${stamp}_2200")
+    exitWarn+=("[$(stamp)]_2200")
 elif [ "$borgResult" -ge 2 ]; then
-    exitError+=("${stamp}_220")
+    exitError+=("[$(stamp)]_220")
     cleanup
     quit
 else
-    exitWarn+=("${stamp}_2201")
+    exitWarn+=("[$(stamp)]_2201")
 fi
 
 ## Generate and execute borg prune
 # command depends on whether or not parameters have been defined
 if [ -n "$borgPrune" ]; then
     # parameters defined
-    echo -e "${bold}${op}${stamp} Executing borg prune operation${normal}" \
+    echo -e "${bold}${op}[$(stamp)] Executing borg prune operation${normal}" \
         >> "$logFile"
     borg prune --show-rc -v ${borgPruneParams} ${borgPrune} \
         2>> "$logFile"
     # check return-status
     pruneResult="$?"
     if [ "$pruneResult" -eq 0 ]; then
-        echo -e "${ok}${stamp} -- [SUCCESS] Borg prune completed successfully" \
+        echo -e "${ok}[$(stamp)] -- [SUCCESS] Borg prune completed successfully" \
             "--${normal}" >> "$logFile"
     elif [ "$pruneResult" -eq 1 ]; then
-        exitWarn+=("${stamp}_2210")
+        exitWarn+=("[$(stamp)]_2210")
     elif [ "$pruneResult" -ge 2 ]; then
-        exitError+=("${stamp}_221")
+        exitError+=("[$(stamp)]_221")
     else
-        exitWarn+=("${stamp}_2212")
+        exitWarn+=("[$(stamp)]_2212")
     fi
 else
     # parameters not defined... skip pruning
-    exitWarn+=("${stamp}_2115")
+    exitWarn+=("[$(stamp)]_2115")
 fi
 
 
 ### borgbackup completed
-echo -e "${op}${stamp} Borgbackup completed... begin cleanup" \
+echo -e "${op}[$(stamp)] Borgbackup completed... begin cleanup" \
     "${normal}" >> "$logFile"
 
 
 ### Exit script
-echo -e "${bold}${op}${stamp} ***Normal exit process***${normal}" \
+echo -e "${bold}${op}[$(stamp)] ***Normal exit process***${normal}" \
     >> "$logFile"
 cleanup
-echo -e "${bold}${ok}${stamp} -- [SUCCESS] All processes completed" \
+echo -e "${bold}${ok}[$(stamp)] -- [SUCCESS] All processes completed" \
     "successfully --${normal}" >> "$logFile"
 quit
 
