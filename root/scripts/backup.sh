@@ -100,6 +100,7 @@ function scriptHelp {
     exit 1
 }
 
+### Generate dynamic timestamp
 function stamp {
     echo `date +%F" "%T`
 }
