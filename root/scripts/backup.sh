@@ -797,21 +797,21 @@ if [ -z "$borgExclude" ]; then
     echo -e "${bold}${op}[$(stamp)] Executing borg without exclusions${normal}" \
         >> "$logFile"
     borg --show-rc create ${borgCreateParams} ::`date +%Y-%m-%d_%H%M%S` \
-        ${xtraFiles[@]} \
-        ${sqlDumpDir} \
-        ${dockerVolumeMail} ${dockerVolumeRspamd} ${dockerVolumePostfix} \
-        ${dockerVolumeRedis} ${dockerVolumeCrypt} \
+        "${xtraFiles[@]}" \
+        "${sqlDumpDir}" \
+        "${dockerVolumeMail}" "${dockerVolumeRspamd}" "${dockerVolumePostfix}" \
+        "${dockerVolumeRedis}" "${dockerVolumeCrypt}" \
         2>> "$logFile"
 else
     # borgExclude is not empty
     echo -e "${bold}${op}[$(stamp)] Executing borg with exclusions${normal}" \
         >> "$logFile"
-    borg --show-rc create ${borgCreateParams} --exclude-from ${borgExclude} \
+    borg --show-rc create ${borgCreateParams} --exclude-from "${borgExclude}" \
         ::`date +%Y-%m-%d_%H%M%S` \
-        ${xtraFiles[@]} \
-        ${sqlDumpDir} \
-        ${dockerVolumeMail} ${dockerVolumeRspamd} ${dockerVolumePostfix} \
-        ${dockerVolumeRedis} ${dockerVolumeCrypt} \
+        "${xtraFiles[@]}" \
+        "${sqlDumpDir}" \
+        "${dockerVolumeMail}" "${dockerVolumeRspamd}" "${dockerVolumePostfix}" \
+        "${dockerVolumeRedis}" "${dockerVolumeCrypt}" \
         2>> "$logFile"
 fi
 
