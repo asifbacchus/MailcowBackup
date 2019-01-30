@@ -25,33 +25,37 @@ This script automates the following tasks:
 - [Environment notes](#environment-notes)
 - [Why this script must be run as root](#why-this-script-must-be-run-as-root)
 - [Script parameters](#script-parameters)
-    - [Optional parameters](#optional-parameters)
-        - [Docker container STOP timeout before error: -1 _number_](#docker-container-stop-timeout-before-error--1-_number_)
-        - [Docker container START timeout before error: -2 _number_](#docker-container-start-timeout-before-error--2-_number_)
-        - [Path to 503 error page: -5 _/path/to/filename.html_](#path-to-503-error-page--5-_pathtofilenamehtml_)
-        - [Path to borg details file: -b _/path/to/filename.file_](#path-to-borg-details-file--b-_pathtofilenamefile_)
-        - [File name of docker-compose configuration file: -d _filename.file_](#file-name-of-docker-compose-configuration-file--d-_filenamefile_)
-        - [Log file location: -l _/path/to/filename.file_](#log-file-location--l-_pathtofilenamefile_)
-        - [File name of Mailcow master configuration file: -m _filename.file_](#file-name-of-mailcow-master-configuration-file--m-_filenamefile_)
-        - [Verbose output from borg: -v (no arguments)](#verbose-output-from-borg--v-no-arguments)
-        - [Path to webroot: -w _/path/to/webroot/_](#path-to-webroot--w-_pathtowebroot_)
+  - [Optional parameters](#optional-parameters)
+    - [Docker container STOP timeout before error: -1 _number_](#docker-container-stop-timeout-before-error--1-number)
+    - [Docker container START timeout before error: -2 _number_](#docker-container-start-timeout-before-error--2-number)
+    - [Path to 503 error page: -5 _/path/to/filename.html_](#path-to-503-error-page--5-pathtofilenamehtml)
+    - [Path to borg details file: -b _/path/to/filename.file_](#path-to-borg-details-file--b-pathtofilenamefile)
+    - [File name of docker-compose configuration file: -d _filename.file_](#file-name-of-docker-compose-configuration-file--d-filenamefile)
+    - [Log file location: -l _/path/to/filename.file_](#log-file-location--l-pathtofilenamefile)
+    - [File name of Mailcow master configuration file: -m _filename.file_](#file-name-of-mailcow-master-configuration-file--m-filenamefile)
+    - [Verbose output from borg: -v (no arguments)](#verbose-output-from-borg--v-no-arguments)
+    - [Path to webroot: -w _/path/to/webroot/_](#path-to-webroot--w-pathtowebroot)
 - [Borg details file](#borg-details-file)
-    - [Protect your borg details file](#protect-your-borg-details-file)
-    - [borg specific entries (lines 1-4)](#borg-specific-entries-lines-1-4)
-    - [additional files/directories to backup](#additional-filesdirectories-to-backup)
-    - [exclusion patterns](#exclusion-patterns)
-    - [prune timeframe options](#prune-timeframe-options)
-    - [borg remote location](#borg-remote-location)
-    - [Examples](#examples)
+  - [Protect your borg details file](#protect-your-borg-details-file)
+  - [borg specific entries (lines 1-4)](#borg-specific-entries-lines-1-4)
+    - [Line 1: Path to borg base directory](#line-1-path-to-borg-base-directory)
+    - [Line 2: Path to SSH key for remote server](#line-2-path-to-ssh-key-for-remote-server)
+    - [Line 3: Connection string to remote repo](#line-3-connection-string-to-remote-repo)
+    - [Line 4: Password for borg repo/repo key](#line-4-password-for-borg-reporepo-key)
+  - [additional files/directories to backup](#additional-filesdirectories-to-backup)
+  - [exclusion patterns](#exclusion-patterns)
+  - [prune timeframe options](#prune-timeframe-options)
+  - [borg remote location](#borg-remote-location)
+  - [Examples](#examples)
 - [503 functionality](#503-functionality)
-    - [Conditional forwarding by your webserver](#conditional-forwarding-by-your-webserver)
-        - [NGINX](#nginx)
-        - [Apache](#apache)
-        - [Disabling 503 functionality altogether](#disabling-503-functionality-altogether)
+  - [Conditional forwarding by your webserver](#conditional-forwarding-by-your-webserver)
+    - [NGINX](#nginx)
+    - [Apache](#apache)
+    - [Disabling 503 functionality altogether](#disabling-503-functionality-altogether)
 - [Scheduling: Cron](#scheduling-cron)
 - [The log file](#the-log-file)
-    - [Using Logwatch](#using-logwatch)
-    - [Remember to rotate your logs](#remember-to-rotate-your-logs)
+  - [Using Logwatch](#using-logwatch)
+  - [Remember to rotate your logs](#remember-to-rotate-your-logs)
 - [Final notes](#final-notes)
 
 ## Installation/copying
@@ -209,9 +213,9 @@ example entries.  The file must have the following information in the following
 order:
 
     1. path to borg base directory **(required)**
-    2. path to ssh private key for repo **(required)**
+    2. path to ssh private key for remote server **(required)**
     3. connection string to remote repo **(required)**
-    4. password for ssh key/repo **(required)**
+    4. password for borg repo/repo key **(required)**
     5. path to file listing additional files/directories to backup
     6. path to file containing borg-specific exclusion patterns
     7. prune timeframe options
@@ -234,10 +238,59 @@ chmod 600 mc_borg.details   # grant access to root user only (read/write)
 
 If you need help with these options, then you should consult the borg
 documentation or search my blog at
-[https://mytechiethoughts.com](https://mytechiethoughts.com) for borg. This is
-especially true if you want to understand why an SSH key and passphrase are
-preferred and why just a passphrase on it's own presents problems automating
-borg backups.
+[https://mytechiethoughts.com](https://mytechiethoughts.com) for borg.  Here's a
+very brief overview:
+
+#### Line 1: Path to borg base directory
+
+This is primary directory on your local system where your borg configuration is
+located, **NOT* the path to your borg binary.  The base directory contains the
+borg configuration, cache, security files and keys.
+
+#### Line 2: Path to SSH key for remote server
+
+This is the SSH key used to connect to your remote (backup) server where your
+borg repo is located.  **This is NOT your borg repo key!**
+
+> Please note:  If you are planning on executing this script via cron or some
+> other form of automation, it is *highly recommended* that you use an SSH key
+> **without** a password!  SSH is designed such that passwords cannot simply be
+> passed to it via environment variables, etc. so this is something not easily
+> automated by a script such as this for security reasons.  As such, your
+> computer will sit and wait for you to enter the password and will NOT execute
+> the actual backup portion of the script until the SSH key password is provided.
+> 
+> If you really want/need to use an SSH key password, you will have to look into
+> somethign like GNOME keyring or SSH-agent to provide a secure automated way to
+> provide that password to SSH and allow this script to continue.
+>
+> In practice, SSH keys without passwords are still quite safe since the key
+> must still be known in order to connect and most keys are quite long.  In
+> addition, they key only connects to the remote server, your actual information
+> within the borg repository is still encrypted and secured with both a key and
+> password.
+
+#### Line 3: Connection string to remote repo
+
+This is the full server and path required to connect to your borg repo on the
+remote server.  Very often it is the in the form of:
+
+```
+user@servername.tld:repo-name/
+```
+
+for rsync.net it is in the following form:
+
+```
+username@server-number.rsync.net:repo-name/
+```
+
+#### Line 4: Password for borg repo/repo key
+
+This is the password needed to access and decrypt your *borg repo*.  Assuming
+you set up your borg repo using recommended practices, this will actually be the
+password for your *borg repo private key*.  **This is NOT your SSH key
+password!**
 
 ### additional files/directories to backup
 
