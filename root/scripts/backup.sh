@@ -230,23 +230,26 @@ function cleanup {
 function operateDocker {
 # determine action to take
 if [ "$1" = "stop" ]; then
+    rName="$(docker ps --format '{{.Names}}' --filter name=${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)"
+
     echo -e "${op}[$(stamp)] Stopping ${2}-mailcow container...${normal}" \
         >> "$logFile"
     docker-compose stop --timeout ${dockerStopTimeout} ${2}-mailcow \
         2>> "$logFile"
     # verify container stopped (should return true)
     dockerResultState=$(docker inspect -f '{{ .State.Running }}' \
-        ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
+        $rName)
     # verify clean stop (exit code 0)
     dockerResultExit=$(docker inspect -f '{{ .State.ExitCode }}' \
-        ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
+        $rName)
 elif [ "$1" = "start" ]; then
     echo -e "${op}[$(stamp)] Starting ${2}-mailcow container...${normal}" \
         >> "$logFile"
     docker-compose start ${2}-mailcow 2>> "$logFile"
     # verify
+    rName="$(docker ps --format '{{.Names}}' --filter name=${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)"
     dockerResultState=$(docker inspect -f '{{ .State.Running }}' \
-        ${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)
+        $rName)
 fi
 }
 
