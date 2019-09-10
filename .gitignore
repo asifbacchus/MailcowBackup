@@ -1,5 +1,10 @@
 # ignore all vscode config files
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/numbered-bookmarks.json
 
 # ignore all generated logfiles
 *.log
