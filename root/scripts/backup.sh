@@ -33,10 +33,15 @@ function scriptHelp {
     echo -e "\tMailcow to operational status."
     echo -e "\nThe readme file included in this script's git contains detailed"
     echo -e "usage information. The following is a brief summary:\n"
-    echo -e "${bold}***This script scans for your mailcow configuration file"
-    echo -e "either with the default name or with your provided filename. If"
-    echo -e "multiple files with this name are on your system, the script"
-    echo -e "WILL get confused and exit with errors***${normal}${default}"
+    echo -e "${bold}***You MUST provide the full path to your mailcow"
+    echo -e "configuration file using the '-m' parameter***${normal}${default}"
+    echo -e "${bold}${note}\nMandatory parameters:${normal}${default}"
+    echo -e "${lit}\n-m, File name of the Mailcow build configuration file${default}"
+    echo -e "FULL PATH to your Mailcow master build configuration file containing"
+    echo -e "all variables and configuration info unique to your Mailcow setup."
+    echo -e "The path specified here is also used for all docker-related"
+    echo -e "operations in this script."
+    echo -e "${info}Default: <none>${default}"
     echo -e "${bold}${note}\nOptional parameters:${normal}${default}"
     echo -e "${lit}\n-1, Timeout for containers to STOP before error${default}"
     echo -e "The number of seconds to wait for a docker container to STOP"
@@ -63,20 +68,12 @@ function scriptHelp {
     echo -e "${lit}\n-d, File name of the docker-compose configuration file${default}"
     echo -e "Name of the docker-compose configuration file that Mailcow uses"
     echo -e "to build/start/stop all containers.  This will only be searched"
-    echo -e "for in the path found to contain your mailcow configuration file."
+    echo -e "for in the path provided for your mailcow configuration file."
     echo -e "${info}Default: docker-compose.yml${default}"
     echo -e "${lit}\n-l, Location to save log file${default}"
     echo -e "This script writes a detailed log file of all activities.  It is"
     echo -e "structured in an way easy for log parsers (like Logwatch) to read."
     echo -e "${info}Default: ScriptPath/ScriptName.log${default}"
-    echo -e "${lit}\n-m, File name of the Mailcow build configuration file${default}"
-    echo -e "Name of the Mailcow master build configuration file that has all"
-    echo -e "variables and configuration info unique to your Mailcow setup."
-    echo -e "This script will search for any file matching what you specify"
-    echo -e "so please ensure you don't have multiple files laying around with"
-    echo -e "the same name! The path where this file is found is used for all"
-    echo -e "docker-based operations in this script."
-    echo -e "${info}Default: mailcow.conf${default}"
     echo -e "${lit}\n-v, Verbose output from borgbackup${default}"
     echo -e "By default, this script will only log summary data from borg."
     echo -e "If you need/want more detailed information, the verbose setting"
@@ -260,12 +257,9 @@ fi
 
 # store the logfile in the same directory as this script using the script's name
 # with the extension .log
-scriptPath="$( cd "$( dicontainerName "${BASH_SOURCE[0]}" )" && pwd )"
+scriptPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 scriptName="$( basename ${0} )"
 logFile="$scriptPath/${scriptName%.*}.log"
-
-# Set default mailcow configuration filename
-mailcowConfigFile=mailcow.conf
 
 # Set default docker-compose filename
 dockerComposeFile=docker-compose.yml
@@ -387,8 +381,8 @@ while getopts ':l:v5:w:b:m:d:1:2:' PARAMS; do
             borgDetails="${OPTARG%/}"
             ;;
         m)
-            # name of mailcow configuration file
-            mailcowConfigFile="${OPTARG}"
+            # full path to mailcow.conf configuration file
+            mailcowConfigFilePath="${OPTARG%/}"
             ;;
         d)
             # name of docker-compose configuration file
@@ -418,20 +412,33 @@ if [ $(id -u) -ne 0 ]; then
     exit 3
 fi
 
-## Find mailcow configuration file so additional variables can be read
-mailcowConfigFilePath=$( find / -mount -name "$mailcowConfigFile" -print )
+## verify mailcow.conf location provided
 if [ -z "$mailcowConfigFilePath" ]; then
-    echo -e "\n${err}Could not locate the specified mailcow configuration" \
-        "file: ${lit}${mailcowConfigFile}${normal}"
+    echo -e "\n${err}You MUST provide the full path to your mailcow.conf" \
+        "configuration file. Exiting.${normal}"
     exit 1
 fi
 
-## Find docker-compose file using mailcow configuration file path as a reference
-mailcowPath="${mailcowConfigFilePath%/$mailcowConfigFile*}"
-dockerComposeFilePath="$mailcowPath/$dockerComposeFile"
-checkExist ff "$dockerComposeFilePath"
-checkResult="$?"
-if [ "$checkResult" = 1 ]; then
+## verify mailcow.conf and extract path
+if checkExist ff "$mailcowConfigFilePath"; then
+    # extract directory name
+    case $mailcowConfigFilePath in
+        */*)
+            mailcowPath=${mailcowConfigFilePath%/*}
+            ;;
+        *)
+            mailcowPath="."
+            ;;
+    esac
+else
+    echo -e "\n${err}Could not locate the specified mailcow configuration" \
+        "file: ${lit}${mailcowConfigFilePath}${normal}"
+    exit 1
+fi
+
+# verify docker-compose.yml exists at location of mailcow.conf (standard setup)
+dockerComposeFilePath="${mailcowPath}/${dockerComposeFile}"
+if ! checkExist ff "$dockerComposeFilePath"; then
     echo -e "\n${err}Could not locate docker-compose configuration file:" \
         "${lit}${dockerComposeFilePath}${normal}"
     exit 1
@@ -456,8 +463,9 @@ echo -e "${info}[$(stamp)] -- [INFO] using ${lit}${mailcowConfigFilePath}" \
 echo -e "${info}[$(stamp)] -- [INFO] using ${lit}${dockerComposeFilePath}" \
     >> "$logFile"
 
+
 ### Import additional variables from mailcow configuration file
-source "${mailcowConfigFilePath}"
+source "$mailcowConfigFilePath"
 
 ### Export PATH so this script can access all docker and docker-compose commands
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
