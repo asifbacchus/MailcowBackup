@@ -230,7 +230,7 @@ function cleanup {
 function operateDocker {
 # determine action to take
 if [ "$1" = "stop" ]; then
-    rName="$(docker ps --format '{{.Names}}' --filter name=${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)"
+    containerName="$(docker ps --format '{{.Names}}' --filter name=${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)"
 
     echo -e "${op}[$(stamp)] Stopping ${2}-mailcow container...${normal}" \
         >> "$logFile"
@@ -238,18 +238,18 @@ if [ "$1" = "stop" ]; then
         2>> "$logFile"
     # verify container stopped (should return true)
     dockerResultState=$(docker inspect -f '{{ .State.Running }}' \
-        $rName)
+        $containerName)
     # verify clean stop (exit code 0)
     dockerResultExit=$(docker inspect -f '{{ .State.ExitCode }}' \
-        $rName)
+        $containerName)
 elif [ "$1" = "start" ]; then
     echo -e "${op}[$(stamp)] Starting ${2}-mailcow container...${normal}" \
         >> "$logFile"
     docker-compose start ${2}-mailcow 2>> "$logFile"
     # verify
-    rName="$(docker ps --format '{{.Names}}' --filter name=${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)"
+    containerName="$(docker ps --format '{{.Names}}' --filter name=${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)"
     dockerResultState=$(docker inspect -f '{{ .State.Running }}' \
-        $rName)
+        $containerName)
 fi
 }
 
@@ -260,7 +260,7 @@ fi
 
 # store the logfile in the same directory as this script using the script's name
 # with the extension .log
-scriptPath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+scriptPath="$( cd "$( dicontainerName "${BASH_SOURCE[0]}" )" && pwd )"
 scriptName="$( basename ${0} )"
 logFile="$scriptPath/${scriptName%.*}.log"
 
