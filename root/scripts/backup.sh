@@ -225,7 +225,7 @@ function cleanup {
 
 ### operate docker containers
 function operateDocker {
-    containerName="$(docker ps --format '{{ .Names }}' --filter name=${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)"
+    containerName="$(docker ps -a --format '{{ .Names }}' --filter name=${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)"
 
     # determine action to take
     if [ "$1" = "stop" ]; then
