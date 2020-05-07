@@ -358,6 +358,12 @@ if [ ! -f "$mcDockerCompose" ]; then
 fi
 
 
+### read mailcow.conf and set vars as needed
+. "$mcConfig"
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export COMPOSE_HTTP_TIMEOUT="$dockerStartTimeout"
+
+
 ### start logging
 printf "%s[%s] --- Start %s execution ---%s\n" \
     "$magenta" "$(stamp)" "$scriptName" "$norm" >> "$logFile"
