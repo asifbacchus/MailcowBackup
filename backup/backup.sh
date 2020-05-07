@@ -545,6 +545,18 @@ exclusions=1
 fi
 
 
+### set location of sql dump
+# this is done before resetting default TMP dir for borg
+if ! sqlDumpDir=$( mktemp -d 2>/dev/null ); then
+    exitError 115 'Unable to create temp directory for SQL dump.'
+else
+    sqlDumpFile="backup-$( date +%Y%m%d_%H%M%S ).sql"
+    sqlDumpDirCreated=1
+    printf "%s[%s] -- [INFO] SQL dump file will be stored at: %s --%s\n" \
+        "$cyan" "$(stamp)" "$sqlDumpDir/$sqlDumpFile" "$norm" >> "$logFile"
+fi
+
+
 ### create borg temp dir:
 ## python requires a writable temporary directory when unpacking borg and
 ## executing commands.  This defaults to /tmp but many systems mount /tmp with
@@ -562,17 +574,6 @@ if [ ! -d "${borgBaseDir}/tmp" ]; then
     fi
 fi
 export TMPDIR="${borgBaseDir}/tmp"
-
-
-### set location of sql dump
-if ! sqlDumpDir=$( mktemp -d 2>/dev/null ); then
-    exitError 115 'Unable to create temp directory for SQL dump.'
-else
-    sqlDumpFile="backup-$( date +%Y%m%d_%H%M%S ).sql"
-    sqlDumpDirCreated=1
-    printf "%s[%s] -- [INFO] SQL dump file will be stored at: %s --%s\n" \
-        "$cyan" "$(stamp)" "$sqlDumpDir/$sqlDumpFile" "$norm" >> "$logFile"
-fi
 
 
 ### 503 functionality
