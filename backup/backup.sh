@@ -580,6 +580,22 @@ if [ "$use503" -eq 1 ]; then
 fi
 
 
+### stop postfix and dovecot mail containers to prevent mailflow during backup
+doDocker stop postfix
+if [ "$dockerResultState" = "false" ] && [ "$dockerResultExit" -eq 0 ]; then
+    printf "%s[%s] -- [INFO] POSTFIX container stopped --$s\n" \
+        "$cyan" "$(stamp)" "$norm" >> "$logFile"
+else
+    exitError 101 'Could not stop POSTFIX container.'
+fi
+doDocker stop dovecot
+if [ "$dockerResultState" = "false" ] && [ "$dockerResultExit" -eq 0 ]; then
+    printf "%s[%s] -- [INFO] POSTFIX container stopped --$s\n" \
+        "$cyan" "$(stamp)" "$norm" >> "$logFile"
+else
+    exitError 101 'Could not stop DOVECOT container.'
+fi
+
 ### execute borg depending on whether exclusions are defined
 
 ## construct the proper borg commandline
@@ -688,6 +704,7 @@ exit 0
 # 2: not run as root
 # 3: borg not installed
 # 99: TERM signal trapped
+# 101: could not stop container(s)
 # 115: unable to create temp dir for SQL dump
 # 130: null configuration variable in details file
 # 131: invalid configuration variable in details file
