@@ -246,7 +246,7 @@ webroot="/usr/share/nginx/html"
 
 # mailcow/docker related
 mcConfig='/opt/mailcow-dockerized/mailcow.conf'
-mcDockerCompose="${mcConfig}/docker-compose.yml"
+mcDockerCompose="${mcConfig%/*}/docker-compose.yml"
 dockerStartTimeout=180
 dockerStopTimeout=120
 
