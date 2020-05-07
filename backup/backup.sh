@@ -149,7 +149,7 @@ scriptHelp() {
     printf "%sUsage: %s [parameters]%s\n\n" "$bold" "$scriptName" "$norm"
     textblock "There are NO mandatory parameters. If a parameter is not supplied, its default value will be used. In the case of a switch parameter, it will remain DEactivated if NOT specified."
     newline
-    textblock "Switches are listed then followed by a description of their effect on the following line. Finally, if a default value exists, it will be listed on the next line in (parentheses)."
+    textblock "Parameters are listed then followed by a description of their effect on the following line. Finally, if a default value exists, it will be listed on the next line in (parentheses)."
     newline
     textblock "${magenta}--- script related parameters ---${norm}"
     newline
@@ -182,7 +182,25 @@ scriptHelp() {
     textblock "Path to where the 'error 503' file should be copied."
     defaultsTextblock "(/usr/share/nginx/html/)"
     newline
-    textblock "More details and examples of script usage can be found in the repo wiki at ${yellow}https://git.asifbacchus.app/asif/myGitea/wiki${norm}"
+    textblock "${magenta}--- mailcow related ---${norm}"
+    newline
+    switchTextblock "-d | --docker-compose"
+    textblock "Path to mailcow's 'docker-compose.yml' file."
+    defaultsTextblock "(/opt/mailcow-dockerized/docker-compose.yml)"
+    newline
+    switchTextblock "-m | --mailcow-config"
+    textblock "Path to mailcow configuration file ('mailcow.conf')."
+    defaultsTextblock "(/opt/mailcow-dockerized/mailcow.conf)"
+    newline
+    switchTextblock "-t1 | --dockerStartTimeout"
+    textblock "Seconds to wait for docker containers to start."
+    defaultsTextblock "(180)"
+    newline
+    switchTextblock "-t2 | --dockerStopTimeout"
+    textblock "Seconds to wait for docker containers to stop."
+    defaultsTextblock "(120)"
+    newline
+    textblock "More details and examples of script usage can be found in the repo wiki at ${yellow}https://git.asifbacchus.app/asif/MailcowBackup/wiki${norm}"
     newline
 }
 
