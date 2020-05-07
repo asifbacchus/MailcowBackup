@@ -596,6 +596,21 @@ else
     exitError 101 'Could not stop DOVECOT container.'
 fi
 
+
+### dump SQL
+printf "%s[%s] -- [INFO] Dumping mailcow SQL database --%s\n" \
+    "$cyan" "$(stamp)" "$norm" >> "$logFile"
+docker-compose exec -T mysql-mailcow mysqldump --default-character-set=utf8mb4 \
+    -u${DBUSER} -p${DBPASS} ${DBNAME} > "$sqlDumpDir/$sqlDumpFile" 2>> "$logFile"
+dumpResult=$( docker-compose exec -T mysql-mailcow echo "$?" )
+if [ "$dumpResult" -eq 0 ]; then
+    printf "%s[%s] -- [INFO] SQL database dumped successfully --%s\n" \
+        "cyan" "$(stamp)" "$norm" >> "$logFile"
+else
+    exitError 119 'There was an error dumping the mailcow SQL database.'
+fi
+
+
 ### execute borg depending on whether exclusions are defined
 
 ## construct the proper borg commandline
@@ -706,6 +721,7 @@ exit 0
 # 99: TERM signal trapped
 # 101: could not stop container(s)
 # 115: unable to create temp dir for SQL dump
+# 119: error dumping SQL database
 # 130: null configuration variable in details file
 # 131: invalid configuration variable in details file
 # 138: borg exited with a critical error
