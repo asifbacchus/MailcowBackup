@@ -318,10 +318,10 @@ while [ $# -gt 0 ]; do
             fi
             ;;
         -d|--docker-compose)
-            # path to mailcow docker-compose file
+            # FULL path to mailcow docker-compose file
             if [ -n "$2" ]; then
                 if [ -f "$2" ]; then
-                    mcDockerCompose="${2%/}"
+                    mcDockerCompose="$2"
                     shift
                 else
                     badParam dne "$@"
@@ -331,10 +331,10 @@ while [ $# -gt 0 ]; do
             fi
             ;;
         -m|--mailcow-config)
-            # path to mailcow configuration file
+            # FULL path to mailcow configuration file
             if [ -n "$2" ]; then
                 if [ -f "$2" ]; then
-                    mcConfig="${2%/}"
+                    mcConfig="$2"
                     shift
                 else
                     badParam dne "$@"
