@@ -399,37 +399,6 @@ printf "%s[%s] -- [INFO] Using MAILCRYPT volume: %s --%s\n" \
     "$cyan" "$(stamp)" "$dockerVolumeCrypt" "$norm" >> "$logFile"
 
 
-### set location of sql dump
-if ! sqlDumpDir=$( mktemp -d 2>/dev/null ); then
-    exitError 115 'Unable to create temp directory for SQL dump.'
-else
-    sqlDumpFile="backup-$( date +%Y%m%d_%H%M%S ).sql"
-    sqlDumpDirCreated=1
-    printf "%s[%s] -- [INFO] SQL dump file will be stored at: %s --%s\n" \
-        "$cyan" "$(stamp)" "$sqlDumpDir/$sqlDumpFile" "$norm" >> "$logFile"
-fi
-
-
-### 503 functionality
-if [ "$use503" -eq 1 ]; then
-    printf "%s[%s] -- [INFO] Copying 503 error page to " \
-        "$cyan" "$(stamp)" >> "$logFile"
-    printf "webroot -- %s\n" "$norm">> "$logFile"
-    if ! cp --force "${err503Path}" "${webroot}/${err503File}" 2>> "$logFile"
-        then
-        printf "%s[%s] -- [WARNING] Failed to copy 503 error page. " \
-            "$warn" "$(stamp)" >> "$logFile"
-        printf "Web users will NOT be notified --%s\n" "$norm" >> "$logFile"
-        warnCount=$((warnCount+1))
-    else
-        printf "%s[%s] -- [SUCCESS] 503 error page copied --%s\n" \
-            "$ok" "$(stamp)" "$norm" >> "$logFile"
-        # set cleanup flag
-        err503Copied=1
-    fi
-fi
-
-
 ### read details file to get variables needed run borg
 # check if config details file was provided as a relative or absolute path
 case "${configDetails}" in
@@ -558,6 +527,37 @@ if [ ! -d "${borgBaseDir}/tmp" ]; then
     fi
 fi
 export TMPDIR="${borgBaseDir}/tmp"
+
+
+### set location of sql dump
+if ! sqlDumpDir=$( mktemp -d 2>/dev/null ); then
+    exitError 115 'Unable to create temp directory for SQL dump.'
+else
+    sqlDumpFile="backup-$( date +%Y%m%d_%H%M%S ).sql"
+    sqlDumpDirCreated=1
+    printf "%s[%s] -- [INFO] SQL dump file will be stored at: %s --%s\n" \
+        "$cyan" "$(stamp)" "$sqlDumpDir/$sqlDumpFile" "$norm" >> "$logFile"
+fi
+
+
+### 503 functionality
+if [ "$use503" -eq 1 ]; then
+    printf "%s[%s] -- [INFO] Copying 503 error page to " \
+        "$cyan" "$(stamp)" >> "$logFile"
+    printf "webroot -- %s\n" "$norm">> "$logFile"
+    if ! cp --force "${err503Path}" "${webroot}/${err503File}" 2>> "$logFile"
+        then
+        printf "%s[%s] -- [WARNING] Failed to copy 503 error page. " \
+            "$warn" "$(stamp)" >> "$logFile"
+        printf "Web users will NOT be notified --%s\n" "$norm" >> "$logFile"
+        warnCount=$((warnCount+1))
+    else
+        printf "%s[%s] -- [SUCCESS] 503 error page copied --%s\n" \
+            "$ok" "$(stamp)" "$norm" >> "$logFile"
+        # set cleanup flag
+        err503Copied=1
+    fi
+fi
 
 
 ### execute borg depending on whether exclusions are defined
