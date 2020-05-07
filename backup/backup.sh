@@ -668,6 +668,7 @@ exit 0
 # 2: not run as root
 # 3: borg not installed
 # 99: TERM signal trapped
+# 115: unable to create temp dir for SQL dump
 # 130: null configuration variable in details file
 # 131: invalid configuration variable in details file
 # 138: borg exited with a critical error
