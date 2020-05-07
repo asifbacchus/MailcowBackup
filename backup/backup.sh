@@ -391,10 +391,7 @@ if [ "$use503" -eq 1 ]; then
     fi
 fi
 # verify mailcow.conf location and extract path
-if [ -f "$mcConfig" ]; then
-    # strip filename and get path
-    mcPath=${mcConfig%/*/}
-else
+if [ ! -f "$mcConfig" ]; then
     badParam dne "(--mailcow-config)" "$mcConfig"
 fi
 # verify docker-compose file exists
