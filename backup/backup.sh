@@ -469,28 +469,6 @@ printf "%s[%s] -- [INFO] %s%s%s imported --%s\n" \
 printf "%s[%s] -- [INFO] Verifying supplied borg details --%s\n" \
     "$cyan" "$(stamp)" "$norm" >> "$logFile"
 
-## read additional files -- this is required otherwise nothing to backup!
-if [ -z "${borgXtraListPath}" ]; then
-    badDetails empty 'xtraLocations'
-else
-    # check if file actually exists
-    if [ ! -f "${borgXtraListPath}" ]; then
-        badDetails dne 'borgXtraListPath'
-    fi
-    # read file contents into concatenated list for echo to cmdline
-    while read -r xtraItem; do
-        if [ -z "${xtraList}" ]; then
-            xtraList="${xtraItem}"
-        else
-            xtraList="${xtraList} ${xtraItem}"
-        fi
-    done <<EOF
-    $( sed -e '/^\s*#.*$/d' -e '/^\s*$/d' "${borgXtraListPath}" )
-EOF
-printf "%sdetails:borgXtraListPath %s-- %s[OK]%s\n" \
-    "$magenta" "$norm" "$ok" "$norm" >> "$logFile"
-fi
-
 ## verify borg base directory
 if [ -z "${borgBaseDir}" ]; then
     badDetails empty 'borgBaseDir'
@@ -557,6 +535,28 @@ if [ -n "${borgExcludeListPath}" ]; then
         badDetails dne 'borgExcludeListPath'
     fi
 exclusions=1
+fi
+
+## read additional files
+if [ -z "${borgXtraListPath}" ]; then
+    xtraList=''
+else
+    # check if file actually exists
+    if [ ! -f "${borgXtraListPath}" ]; then
+        badDetails dne 'borgXtraListPath'
+    fi
+    # read file contents into concatenated list for echo to cmdline
+    while read -r xtraItem; do
+        if [ -z "${xtraList}" ]; then
+            xtraList="${xtraItem}"
+        else
+            xtraList="${xtraList} ${xtraItem}"
+        fi
+    done <<EOF
+    $( sed -e '/^\s*#.*$/d' -e '/^\s*$/d' "${borgXtraListPath}" )
+EOF
+printf "%sdetails:borgXtraListPath %s-- %s[OK]%s\n" \
+    "$magenta" "$norm" "$ok" "$norm" >> "$logFile"
 fi
 
 
