@@ -670,6 +670,7 @@ printf "%s[%s] -- [INFO] Pre-backup tasks completed, calling borgbackup --%s\n" 
 if [ "$exclusions" -eq 0 ]; then
     borgCMD="borg --show-rc create ${borgCreateParams} \
         ::$(date +%Y-%m-%d_%H%M%S) \
+        ${mcConfig%/*} \
         ${sqlDumpDir} \
         ${dockerVolumeMail} \
         ${dockerVolumeRspamd} \
@@ -681,6 +682,7 @@ elif [ "$exclusions" -eq 1 ]; then
     borgCMD="borg --show-rc create ${borgCreateParams} \
         --exclude-from ${borgExcludeListPath} \
         ::$(date +%Y-%m-%d_%H%M%S) \
+        ${mcConfig%/*} \
         ${sqlDumpDir} \
         ${dockerVolumeMail} \
         ${dockerVolumeRspamd} \
