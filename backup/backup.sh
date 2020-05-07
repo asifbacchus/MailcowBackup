@@ -583,14 +583,14 @@ fi
 ### stop postfix and dovecot mail containers to prevent mailflow during backup
 doDocker stop postfix
 if [ "$dockerResultState" = "false" ] && [ "$dockerResultExit" -eq 0 ]; then
-    printf "%s[%s] -- [INFO] POSTFIX container stopped --$s\n" \
+    printf "%s[%s] -- [INFO] POSTFIX container stopped --%s\n" \
         "$cyan" "$(stamp)" "$norm" >> "$logFile"
 else
     exitError 101 'Could not stop POSTFIX container.'
 fi
 doDocker stop dovecot
 if [ "$dockerResultState" = "false" ] && [ "$dockerResultExit" -eq 0 ]; then
-    printf "%s[%s] -- [INFO] POSTFIX container stopped --$s\n" \
+    printf "%s[%s] -- [INFO] POSTFIX container stopped --%s\n" \
         "$cyan" "$(stamp)" "$norm" >> "$logFile"
 else
     exitError 101 'Could not stop DOVECOT container.'
