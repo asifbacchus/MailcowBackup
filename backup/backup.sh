@@ -371,6 +371,29 @@ printf "%s[%s] -- [INFO] Log located at %s%s%s --%s\n" \
     "$cyan" "$(stamp)" "$yellow" "$logFile" "$cyan" "$norm" >> "$logFile"
 
 
+### location of docker volumes and sql dump file
+dockerVolumeMail=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_vmail-vol-1)
+printf "%s[%s] -- [INFO] Using MAIL volume: %s --%s\n" \
+    "$cyan" "$(stamp)" "$dockerVolumeMail" "$norm" >> "$logFile"
+dockerVolumeRspamd=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_rspamd-vol-1)
+printf "%s[%s] -- [INFO] Using RSPAMD volume: %s --%s\n" \
+    "$cyan" "$(stamp)" "$dockerVolumeRspamd" "$norm" >> "$logFile"
+dockerVolumePostfix=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_postfix-vol-1)
+printf "%s[%s] -- [INFO] Using POSTFIX volume: %s --%s\n" \
+    "$cyan" "$(stamp)" "$dockerVolumePostfix" "$norm" >> "$logFile"
+dockerVolumeRedis=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_redis-vol-1)
+printf "%s[%s] -- [INFO] Using REDIS volume: %s --%s\n" \
+    "$cyan" "$(stamp)" "$dockerVolumeRedis" "$norm" >> "$logFile"
+dockerVolumeCrypt=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_crypt-vol-1)
+printf "%s[%s] -- [INFO] Using MAILCRYPT volume: %s --%s\n" \
+    "$cyan" "$(stamp)" "$dockerVolumeCrypt" "$norm" >> "$logFile"
+
+sqlDumpDir="$( mktemp -d )"
+sqlDumpFile="backup-$( date +%Y%m%d_%H%M%S ).sql"
+printf "%s[%s] -- [INFO] SQL dump file will be stored at: %s --%s\n" \
+    "$cyan" "$(stamp)" "$sqlDumpDir/$sqlDumpFile" "$norm" >> "$logFile"
+
+
 ### 503 functionality
 if [ "$use503" -eq 1 ]; then
     printf "%s[%s] -- [INFO] Copying 503 error page to " \
