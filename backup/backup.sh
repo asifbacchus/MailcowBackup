@@ -71,7 +71,7 @@ badParam () {
 
 # cleanup
 cleanup () {
-        # cleanup 503 if copied
+    # cleanup 503 if copied
     if [ "$err503Copied" -eq 1 ]; then
         if ! rm -f "$webroot/$err503File" 2>>"$logFile"; then
             printf "%s[%s] -- [WARNING] Could not remove 503 error page." \
@@ -84,6 +84,16 @@ cleanup () {
             printf "%s[%s] -- [INFO] 503 error page removed --%s\n" \
                 "$cyan" "$(stamp)" "$norm" >> "$logFile"
         fi        
+    fi
+    # cleanup SQL dump directory if created
+    if [ "$sqlDumpDirCreated" -eq 1 ]; then
+        if ! rm -rf "$sqlDumpDir" 2>>"$logFile"; then
+            printf "%s[%s] -- [WARNING] Could not remove temporary SQL-dump directory. Sorry for the mess. --%s\n" \
+                "$warn" "$(stamp)" "$norm" >> "$logFile"
+        else
+            printf "%s[%s] -- [INFO] Temporary SQL-dump directory removed successfully --%s\n" \
+                "$cyan" "$(stamp)" "$norm" >> "$logFile"
+        fi
     fi
 }
 
