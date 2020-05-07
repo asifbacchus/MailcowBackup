@@ -630,17 +630,30 @@ fi
 
 
 ### execute borg depending on whether exclusions are defined
+printf "%s[%s] -- [INFO] Pre-backup tasks completed, calling borgbackup --%s\n" "$cyan" "$(stamp)" "$norm" >> "$logFile"
 
 ## construct the proper borg commandline
 # base command
 if [ "$exclusions" -eq 0 ]; then
     borgCMD="borg --show-rc create ${borgCreateParams} \
         ::$(date +%Y-%m-%d_%H%M%S) \
+        ${sqlDumpDir} \
+        ${dockerVolumeMail} \
+        ${dockerVolumeRspamd} \
+        ${dockerVolumePostfix} \
+        ${dockerVolumeRedis} \
+        ${dockerVolumeCrypt} \
         ${xtraList}"
 elif [ "$exclusions" -eq 1 ]; then
     borgCMD="borg --show-rc create ${borgCreateParams} \
         --exclude-from ${borgExcludeListPath} \
         ::$(date +%Y-%m-%d_%H%M%S) \
+        ${sqlDumpDir} \
+        ${dockerVolumeMail} \
+        ${dockerVolumeRspamd} \
+        ${dockerVolumePostfix} \
+        ${dockerVolumeRedis} \
+        ${dockerVolumeCrypt} \
         ${xtraList}"
 fi
 
