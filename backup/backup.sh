@@ -119,14 +119,14 @@ doDocker() {
     if [ "$1" = "stop" ]; then
         printf "%s[%s] -- [INFO] Stopping %s-mailcow container --%s\n" \
             "$cyan" "$(stamp)" "$2" "$norm" >> "$logFile"
-        docker-compose -f "$mcDockerCompose" stop --timeout "$dockerStopTimeout" "$2-mailcow" 2>> "$logFile"
+        docker-compose -f "$mcDockerCompose" --env-path "$mcConfig" stop --timeout "$dockerStopTimeout" "$2-mailcow" 2>> "$logFile"
         # set result vars
         dockerResultState="$( docker inspect -f '{{ .State.Running }}' $containerName )"
         dockerResultExit="$( docker inspect -f '{{ .State.ExitCode }}' $containerName )"
     elif [ "$1" = "start" ]; then
         printf "%s[%s] -- [INFO] Starting %s-mailcow container --%s\n" \
             "$cyan" "$(stamp)" "$2" "$norm" >> "$logFile"
-        docker-compose -f "$mcDockerCompose" start "$2-mailcow" 2>> "$logFile"
+        docker-compose -f "$mcDockerCompose" --env-path "$mcConfig" start "$2-mailcow" 2>> "$logFile"
         # set result vars
         dockerResultState="$( docker inspect -f '{{ .State.Running }}' $containerName )"
     fi
