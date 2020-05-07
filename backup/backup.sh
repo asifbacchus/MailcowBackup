@@ -607,7 +607,25 @@ if [ "$dumpResult" -eq 0 ]; then
     printf "%s[%s] -- [INFO] SQL database dumped successfully --%s\n" \
         "cyan" "$(stamp)" "$norm" >> "$logFile"
 else
-    exitError 119 'There was an error dumping the mailcow SQL database.'
+    exitError 118 'There was an error dumping the mailcow SQL database.'
+fi
+
+
+### dump redis inside container
+# delete old redis dump if it exists
+if [ -f "$dockerVolumeRedis/dump.rdb" ]; then
+    rm -f "$dockerVolumeRedis/dump.rdb"
+fi
+# dump redis
+printf "%s[%s] -- [INFO] Dumping mailcow redis database --%s\n" \
+    "$cyan" "$(stamp)" "$norm" >> "$logFile"
+docker-compose exec -T redis-mailcow redis-cli save >> "$logFile" 2>&1
+rdumpResult=$( docker-compose exec -T redis-mailcow echo "$?" )
+if [ "$rdumpResult" -eq 0 ]; then
+    printf "%s[%s] -- [INFO] mailcow redis dumped successfully --%s\n" \
+        "cyan" "$(stamp)" "$norm" >> "$logFile"
+else
+    exitError 119 'There was an error dumping the mailcow redis database.'
 fi
 
 
@@ -721,7 +739,8 @@ exit 0
 # 99: TERM signal trapped
 # 101: could not stop container(s)
 # 115: unable to create temp dir for SQL dump
-# 119: error dumping SQL database
+# 118: error dumping SQL database
+# 119: error dumping redis database
 # 130: null configuration variable in details file
 # 131: invalid configuration variable in details file
 # 138: borg exited with a critical error
