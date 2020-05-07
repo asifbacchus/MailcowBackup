@@ -43,13 +43,13 @@ borgKeyfileLocation="/var/borgbackup/.config/borg/keys/server_address__repo_name
 # nothing is defined by default. Therefore, ONLY files specified in this file
 # will be backed up!
 # see repo wiki for more details
-borgXtraListPath="/root/scripts/backup/xtraLocations.borg"
+borgXtraListPath="/scripts/backup/xtraLocations.borg"
 
 # OPTIONAL: path to file containing files/directories or 'patterns' to be
 # excluded in a BORG RECOGNIZED format
 # see repo wiki for more details or consult borg documentation
 # leave blank for no exclusions.
-borgExcludeListPath="/root/scripts/backup/excludeLocations.borg"
+borgExcludeListPath="/scripts/backup/excludeLocations.borg"
 
 # parameters to determine how borg deletes aged backups
 # more details in the repo wiki and/or borg documentation
