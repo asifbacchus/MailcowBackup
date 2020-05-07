@@ -40,7 +40,7 @@ trap trapExit 1 2 3 6
 ### functions
 
 # bad configuration value passed in details file
-badDetails () {
+badDetails() {
     if [ "$1" = "empty" ]; then
         exitError 130 "details:${2} cannot be NULL (undefined)"
     elif [ "$1" = "dne" ]; then
@@ -49,7 +49,7 @@ badDetails () {
 }
 
 # bad parameter passed to script
-badParam () {
+badParam() {
     if [ "$1" = "dne" ]; then
         printf "\n%sError: '%s %s'\n" "$err" "$2" "$3"
         printf "file or directory does not exist.%s\n\n" "$norm"
@@ -70,7 +70,7 @@ badParam () {
 }
 
 # cleanup
-cleanup () {
+cleanup() {
     # cleanup 503 if copied
     if [ "$err503Copied" -eq 1 ]; then
         if ! rm -f "$webroot/$err503File" 2>>"$logFile"; then
@@ -98,7 +98,7 @@ cleanup () {
 }
 
 # call cleanup and then exit with error report
-exitError () {
+exitError() {
     printf "%s[%s] -- [ERROR] %s: %s --%s\n" \
             "$err" "$(stamp)" "$1" "$2" "$norm" >> "$logFile"
     cleanup
@@ -109,7 +109,7 @@ exitError () {
 }
 
 # display script help information
-scriptHelp () {
+scriptHelp() {
     newline
     printf "%sUsage: %s [parameters]%s\n\n" "$bold" "$scriptName" "$norm"
     textblock "There are NO mandatory parameters. If a parameter is not supplied, its default value will be used. In the case of a switch parameter, it will remain DEactivated if NOT specified."
@@ -152,7 +152,7 @@ scriptHelp () {
 }
 
 # generate dynamic timestamps
-stamp () {
+stamp() {
     (date +%F" "%T)
 }
 
@@ -169,12 +169,12 @@ switchTextblock() {
 }
 
 # print a blank line
-newline () {
+newline() {
     printf "\n"
 }
 
 # same as exitError but for signal captures
-trapExit () {
+trapExit() {
     printf "%s[%s] -- [ERROR] 99: Caught signal --%s\n" \
             "$err" "$(stamp)" "$norm" >> "$logFile"
     cleanup
