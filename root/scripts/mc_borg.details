@@ -1,8 +1,0 @@
-<path to borgbackup base directory>          /var/borgbackup
-<path to SSH private key for remote server>  /var/borgbackup/sshPrivate.key
-<connection string to remote repo>           user@servername.tld:repoName/
-<password for repo>                          pAsSwOrd
-<path to file listing extra files>           /root/scripts/xtraLocations.borg
-<path to file with exclusions>               /root/scripts/excludeLocations.borg
-<purge timeframe options>                    --keep-within=7d --keep-daily=30 --keep-weekly=12 --keep-monthly=-1
-<location of borg remote instance>           borg1
