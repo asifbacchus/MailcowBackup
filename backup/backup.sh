@@ -95,6 +95,21 @@ cleanup() {
                 "$cyan" "$(stamp)" "$norm" >> "$logFile"
         fi
     fi
+    # start docker containers (no harm if they are already running)
+    doDocker start postfix
+    if [ "$dockerResultState" = "true" ]; then
+        printf "%s[%s] -- [INFO] POSTFIX container is running --%s\n" \
+            "$cyan" "$(stamp)" "$norm" >> "$logFile"
+    else
+        exitError 102 'Could not start POSTFIX container.'
+    fi
+    doDocker start dovecot
+    if [ "$dockerResultState" = "true" ]; then
+        printf "%s[%s] -- [INFO] DOVECOT container is running --%s\n" \
+            "$cyan" "$(stamp)" "$norm" >> "$logFile"
+    else
+        exitError 102 'Could not start DOVECOT container.'
+    fi
 }
 
 doDocker() {
@@ -751,6 +766,7 @@ exit 0
 # 3: borg not installed
 # 99: TERM signal trapped
 # 101: could not stop container(s)
+# 102: could not start container(s)
 # 115: unable to create temp dir for SQL dump
 # 118: error dumping SQL database
 # 119: error dumping redis database
