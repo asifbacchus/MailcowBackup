@@ -1,0 +1,61 @@
+#######
+### backup script configuration details
+###
+### This file contains sensitive information, make sure you have protected
+### it by restricting permissions!
+### Run the following in the directory where this file is located:
+###     chown root:root ./backup.details
+###     chmod 600 ./backup.details
+###
+### Do NOT include any commands in this file as they WILL be executed!!!
+#######
+
+
+### borg details
+# if you're unsure what to enter here, please consult the repo wiki and/or
+# the borg documentation
+
+# base configuration directory for borg, all borg parameters use this directory
+# as their 'root'.  I recommend setups with this being "/var/borgbackup", the
+# default is "$HOME" or "~$USER" in that order.  If you're unsure, try "$HOME"
+borgBaseDir="/var/borgbackup"
+
+# full path to the SSH key used to connect to your remote backup server
+borgSSHKey="/var/borgbackup/private.key"
+
+# connection string to access the borg repo on your remote backup server
+# this is usually in the form user@servername.tld:repoName/
+borgConnectRepo="jdoe123@borg.server.net:mailcow/"
+
+# password to access repo
+# this was set when the repo was initialized and, while optional, is HIGHLY
+# recommended for security
+borgRepoPassphrase="p@ssW0rd"
+
+# keyfile to access repo
+# FULL PATH where the associated keyfile for your repo is located -- relevant
+# only if your repo requires a keyfile (i.e. 'keyfile' vs 'repokey') and if you
+# are not using the default keyfile location
+borgKeyfileLocation="/var/borgbackup/.config/borg/keys/server_address__repo_name"
+
+# REQUIRED: path to text file containing a list (one per line) of files/
+# directories to include in your backup. Since this is a generic backup script,
+# nothing is defined by default. Therefore, ONLY files specified in this file
+# will be backed up!
+# see repo wiki for more details
+borgXtraListPath="/root/scripts/backup/xtraLocations.borg"
+
+# OPTIONAL: path to file containing files/directories or 'patterns' to be
+# excluded in a BORG RECOGNIZED format
+# see repo wiki for more details or consult borg documentation
+# leave blank for no exclusions.
+borgExcludeListPath="/root/scripts/backup/excludeLocations.borg"
+
+# parameters to determine how borg deletes aged backups
+# more details in the repo wiki and/or borg documentation
+# leave blank to skip pruning altogether -- NOT recommended!
+borgPruneSettings="--keep-within=14d --keep-daily=30 --keep-weekly=12 --keep-monthly=12"
+
+# location of borg instance on your remote backup server
+# this is very often just "borg1"
+borgRemote="borg1"

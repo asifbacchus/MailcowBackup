@@ -1,0 +1,57 @@
+# Files and directories listed here will be included in your borg backup
+#
+# Good candidates for inclusion would be things like your mailcow configuration
+# files, customized docker-compose overrides, your SSL certificates, etc.
+#
+# List the path to files/directories one per line.
+# Any blank lines will be ignored.
+# Any lines starting with '#' will be ignored as a comment.
+# For consistency, you should include the trailing slash for directories.
+
+# these examples are for a very basic Debian machine hosting mailcow
+
+
+### important system configuration files
+
+# basic configuration
+/etc/fstab
+/etc/network/interfaces
+/etc/network/interfaces.d/
+/etc/systemd/timesyncd.conf
+
+# ssh configuration and host keys
+/etc/ssh/
+
+# apt configuration
+/etc/apt/sources.list
+/etc/apt/sources.list.d/
+/etc/apt/listchanges.conf
+/etc/apt/apt.conf.d/50unattended-upgrades
+/etc/apt/apt.conf.d/20auto-upgrades
+
+# user profile defaults and configurations
+/etc/profile
+/etc/bash.bashrc
+/etc/skel/
+/etc/nanorc
+
+# selected root user files
+/root/.bashrc
+/root/.ssh/
+
+# scripts
+/scripts/
+
+
+### important programs and configurations
+
+# name of program for reference
+# include the paths to important configuration files/directories and/or
+# data directories
+
+# NGINX (example)
+/etc/nginx/
+/usr/share/nginx/html/
+
+# LetsEncrypt (example)
+/etc/letsencrypt/
