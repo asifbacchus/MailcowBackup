@@ -302,14 +302,14 @@ while [ $# -gt 0 ]; do
             if [ -z "$2" ]; then
                 badParam empty "$@"
             else
-                dockerStartTimeout = "$2"
+                dockerStartTimeout="$2"
             fi
             ;;
         -t2|--timeout-stop)
             if [ -z "$2" ]; then
                 badParam empty "$@"
             else
-                dockerStopTimeout = "$2"
+                dockerStopTimeout="$2"
             fi
             ;;
         *)
