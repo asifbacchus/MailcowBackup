@@ -49,6 +49,9 @@
 # include the paths to important configuration files/directories and/or
 # data directories
 
+# mailcow configuration (example)
+/opt/mailcow-dockerized/
+
 # NGINX (example)
 /etc/nginx/
 /usr/share/nginx/html/
