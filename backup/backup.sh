@@ -199,6 +199,12 @@ err503Path="$scriptPath/503_backup.html"
 err503File="${err503Path##*/}"
 webroot="/usr/share/nginx/html"
 
+# mailcow/docker related
+mcConfig='/opt/mailcow-dockerized/mailcow.conf'
+mcDockerCompose="${mcConfig}/docker-compose.yml"
+dockerStartTimeout=180
+dockerStopTimeout=120
+
 
 ### process startup parameters
 while [ $# -gt 0 ]; do
@@ -217,11 +223,6 @@ while [ $# -gt 0 ]; do
                 badParam empty "$@"
             fi
             ;;
-        -v|--verbose)
-            # set verbose logging from borg
-            borgCreateParams='--list --stats'
-            borgPruneParams='--list'
-            ;;
         -c|--config|--details)
             # location of config details file
             if [ -n "$2" ]; then
@@ -234,6 +235,11 @@ while [ $# -gt 0 ]; do
             else
                 badParam empty "$@"
             fi
+            ;;
+        -v|--verbose)
+            # set verbose logging from borg
+            borgCreateParams='--list --stats'
+            borgPruneParams='--list'
             ;;
         -5|--use-503)
             # enable copying 503 error page to webroot
@@ -264,6 +270,46 @@ while [ $# -gt 0 ]; do
                 fi
             else
                 badParam empty "$@"
+            fi
+            ;;
+        -d|--docker-compose)
+            # path to mailcow docker-compose file
+            if [ -n "$2" ]; then
+                if [ -f "$2" ]; then
+                    mcDockerCompose="${2%/}"
+                    shift
+                else
+                    badParam dne "$@"
+                fi
+            else
+                badParam empty "$@"
+            fi
+            ;;
+        -m|--mailcow-config)
+            # path to mailcow configuration file
+            if [ -n "$2" ]; then
+                if [ -f "$2" ]; then
+                    mcConfig="${2%/}"
+                    shift
+                else
+                    badParam dne "$@"
+                fi
+            else
+                badParam empty "$@"
+            fi
+            ;;
+        -t1|--timeout-start)
+            if [ -z "$2" ]; then
+                badParam empty "$@"
+            else
+                dockerStartTimeout = "$2"
+            fi
+            ;;
+        -t2|--timeout-stop)
+            if [ -z "$2" ]; then
+                badParam empty "$@"
+            else
+                dockerStopTimeout = "$2"
             fi
             ;;
         *)
@@ -298,6 +344,17 @@ if [ "$use503" -eq 1 ]; then
     elif [ ! -d "$webroot" ]; then
         badParam dne "(--webroot default)" "$webroot"
     fi
+fi
+# verify mailcow.conf location and extract path
+if [ -f "$mcConfig" ]; then
+    # strip filename and get path
+    mcPath=${mcConfig%/*/}
+else
+    badParam dne "(--mailcow-config)" "$mcConfig"
+fi
+# verify docker-compose file exists
+if [ ! -f "$mcDockerCompose" ]; then
+    badParam dne "(--docker-compose)" "$mcDockerCompose"
 fi
 
 

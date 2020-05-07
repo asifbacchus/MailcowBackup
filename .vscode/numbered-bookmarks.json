@@ -1,3 +1,19 @@
 {
-	"bookmarks": []
+	"bookmarks": [
+		{
+			"fsPath": "$ROOTPATH$/backup/backup.sh",
+			"bookmarks": [
+				-1,
+				-1,
+				-1,
+				-1,
+				-1,
+				-1,
+				-1,
+				-1,
+				-1,
+				352
+			]
+		}
+	]
 }
