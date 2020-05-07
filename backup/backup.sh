@@ -371,7 +371,7 @@ printf "%s[%s] -- [INFO] Log located at %s%s%s --%s\n" \
     "$cyan" "$(stamp)" "$yellow" "$logFile" "$cyan" "$norm" >> "$logFile"
 
 
-### location of docker volumes and sql dump file
+### get location of docker volumes
 dockerVolumeMail=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_vmail-vol-1)
 printf "%s[%s] -- [INFO] Using MAIL volume: %s --%s\n" \
     "$cyan" "$(stamp)" "$dockerVolumeMail" "$norm" >> "$logFile"
@@ -388,10 +388,16 @@ dockerVolumeCrypt=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJE
 printf "%s[%s] -- [INFO] Using MAILCRYPT volume: %s --%s\n" \
     "$cyan" "$(stamp)" "$dockerVolumeCrypt" "$norm" >> "$logFile"
 
-sqlDumpDir="$( mktemp -d )"
-sqlDumpFile="backup-$( date +%Y%m%d_%H%M%S ).sql"
-printf "%s[%s] -- [INFO] SQL dump file will be stored at: %s --%s\n" \
-    "$cyan" "$(stamp)" "$sqlDumpDir/$sqlDumpFile" "$norm" >> "$logFile"
+
+### set location of sql dump
+if ! sqlDumpDir=$( mktemp -d 2>/dev/null ); then
+    exitError 115 'Unable to create temp directory for SQL dump.'
+else
+    sqlDumpFile="backup-$( date +%Y%m%d_%H%M%S ).sql"
+    sqlDumpDirCreated=1
+    printf "%s[%s] -- [INFO] SQL dump file will be stored at: %s --%s\n" \
+        "$cyan" "$(stamp)" "$sqlDumpDir/$sqlDumpFile" "$norm" >> "$logFile"
+fi
 
 
 ### 503 functionality
