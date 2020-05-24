@@ -56,7 +56,7 @@ You will need to let the script know how to access your remote repo along with a
 
 ## running the script
 
-After setting up the *.details* file correrctly and assuming you are running a default set up of mailcow according to the documentation, you just have to run the script and it will find everything on it's own. In particular, the defaults are set as follows:
+After setting up the *.details* file correctly and assuming you are running a default set up of mailcow according to the documentation, you just have to run the script and it will find everything on it's own. In particular, the defaults are set as follows:
 
 - mailcow.conf is located at */opt/mailcow-dockerized/mailcow.conf*
 - docker-compose file is located at */opt/mailcow-dockerized/docker-compose.yml*
@@ -101,7 +101,7 @@ Non-default mailcow location (example: */var/mailcow*):
 ./backup.sh --docker-compose /var/mailcow/docker-compose.yml --mailcow-config /var/mailcow/mailcow.conf
 ```
 
-For more configuration options, see [page 3.0](https://git.asifbacchus.app/asif/MailcowBackup/wiki/3.0-Script-parameters) in the wiki and [page 4.4](https://git.asifbacchus.app/asif/MailcowBackup/wiki/4.4-Configuration-examples) for some configuration examples. Consult [section 7]() of the wiki for information about the log file and how to integrate it with logwatch.
+For more configuration options, see [page 3.0](https://git.asifbacchus.app/asif/MailcowBackup/wiki/3.0-Script-parameters) in the wiki and [page 4.4](https://git.asifbacchus.app/asif/MailcowBackup/wiki/4.4-Configuration-examples) for some configuration examples. Consult [section 7](https://git.asifbacchus.app/asif/MailcowBackup/wiki/7.0-Logs) of the wiki for information about the log file and how to integrate it with logwatch.
 
 ## scheduling your backup via cron
 
@@ -113,7 +113,7 @@ Edit your root user's crontab and add an entry like this which would run the scr
 
 ## Final notes
 
-I think that's everything. For detailed information, please review the [wiki](https://git.asifbacchus.app/asif/MailcowBackup/wiki/_pages). If I've forgotten to document something there, please let me know. I know the wiki is long but, I hate how much stuff for linux and open-source programs/scripts in general are so poorly documented especially for newbies and I didn't want to make that same mistake.
+I think that's everything. For detailed information, please review the [wiki](https://git.asifbacchus.app/asif/MailcowBackup/wiki/_pages). If I've forgotten to document something there, please let me know. I know the wiki is long but, I hate how much stuff for Linux and open-source programs/scripts in general are so poorly documented especially for newbies and I didn't want to make that same mistake.
 
 I don't script too often and I'm a horrible programmer, so if you see anything that can be/should be improved, please let me know by filing an issue or submit your changes via a pull request!  I love learning new ways of doing things and getting feedback, so suggestions and comments are more than welcome.
 
