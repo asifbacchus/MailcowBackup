@@ -20,7 +20,7 @@ This script automates the following tasks:
 - [configuration file](#configuration-file)
 - [running the script](#running-the-script)
 - [scheduling your backup via cron](#scheduling-your-backup-via-cron)
-- [Final notes](#final-notes)
+- [final notes](#final-notes)
 
 ## quick start
 
@@ -111,7 +111,7 @@ Edit your root user's crontab and add an entry like this which would run the scr
 7 1 * * * /scripts/backup/backup.sh -l /var/log/mailcow_backup.log > /dev/null 2>&1
 ```
 
-## Final notes
+## final notes
 
 I think that's everything. For detailed information, please review the [wiki](https://git.asifbacchus.app/asif/MailcowBackup/wiki/_pages). If I've forgotten to document something there, please let me know. I know the wiki is long but, I hate how much stuff for Linux and open-source programs/scripts in general are so poorly documented especially for newbies and I didn't want to make that same mistake.
 
