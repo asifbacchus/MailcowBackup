@@ -52,7 +52,7 @@ chmod 600 backup.details
 
 ## configuration file
 
-You will need to let the script know how to access your remote repo along with any passwords/keyfiles needed to encrypt data. This is all handled via the plain-text 'configuration details' file. By default, this file is named *backup.details*. The file itself is fully commented so setting it up should not be difficult. If you need more information, consult [page 4.0](https://git.asifbacchus.app/asif/MailcowBackup/wiki/4.0-Configuration-details-file) in this wiki.
+You will need to let the script know how to access your remote repo along with any passwords/keyfiles needed to encrypt data. This is all handled via the plain-text 'configuration details' file. By default, this file is named *backup.details*. The file itself is fully commented so setting it up should not be difficult. If you need more information, consult [page 4.0](https://git.asifbacchus.app/asif/MailcowBackup/wiki/4.0-Configuration-details-file) in the wiki.
 
 ## running the script
 
