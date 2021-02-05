@@ -251,6 +251,7 @@ logFile="$scriptPath/${scriptName%.*}.log"
 warnCount=0
 configDetails="$scriptPath/${scriptName%.*}.details"
 err503Copied=0
+sqlDumpDirCreated=0
 exclusions=0
 # borg output verbosity -- normal
 borgCreateParams='--stats'
