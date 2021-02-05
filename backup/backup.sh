@@ -83,7 +83,7 @@ cleanup() {
         else
             printf "%s[%s] -- [INFO] 503 error page removed --%s\n" \
                 "$cyan" "$(stamp)" "$norm" >> "$logFile"
-        fi        
+        fi
     fi
     # cleanup SQL dump directory if created
     if [ "$sqlDumpDirCreated" -eq 1 ]; then
@@ -419,6 +419,7 @@ fi
 
 
 ### read mailcow.conf and set vars as needed
+# shellcheck source=./mailcow.conf.shellcheck
 . "$mcConfig"
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 export COMPOSE_HTTP_TIMEOUT="$dockerStartTimeout"
@@ -454,10 +455,12 @@ printf "%s[%s] -- [INFO] Using MAILCRYPT volume: %s --%s\n" \
 case "${configDetails}" in
     /*)
         # absolute path, no need to rewrite variable
+        # shellcheck source=./backup.details
         . "${configDetails}"
         ;;
     *)
         # relative path, prepend './' to create absolute path
+        # shellcheck source=./backup.details
         . "./${configDetails}"
         ;;
 esac
