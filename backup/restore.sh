@@ -251,11 +251,9 @@ fi
 if [ ! -f "$mcDockerCompose" ]; then
     consoleError '1' "docker-compose configuration ($mcDockerCompose) cannot be found."
 fi
-# backup location?
+# forgot to set backup location?
 if [ -z "$backupLocation" ]; then
     consoleError '1' "'--backup-location' cannot be unspecified or null/empty."
-elif [ ! -d "$backupLocation" ]; then
-    consoleError '1' "${backupLocation}: directory cannot be found."
 fi
 # change to mailcow directory so commands execute properly
 \cd "${mcConfig%/*}" || consoleError '4' 'Cannot change to mailcow directory as determined from mailcow.conf location.'
