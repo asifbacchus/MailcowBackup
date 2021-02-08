@@ -202,7 +202,7 @@ while [ $# -gt 0 ]; do
     -b|--backup-location)
         if [ -n "$2" ]; then
             if [ -d "$2" ] && [ -n "$( ls -A "$2" )" ]; then
-                backupLocation="$2"
+                backupLocation="${2%/}"
                 shift
             else
                 consoleError '1' "$1: cannot find specified backup location directory or it is empty."
