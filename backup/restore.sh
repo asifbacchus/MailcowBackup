@@ -5,7 +5,7 @@
 ### this assumes three things:
 ###     1. standard mailcow-dockerized setup as per the docs
 ###     2. backups made using the backup script from this git repo
-###     3. backups successfully written to your borg repo
+###     3. backups already downloaded from your borg repo
 #######
 
 ### text-formatting presets
@@ -35,18 +35,6 @@ fi
 trap trapExit 1 2 3 6
 
 ### functions
-
-badDetails() {
-    if [ "$1" = 'empty' ]; then
-        writeLog 'done' 'error'
-        writeLog 'error' '10' "details:${2} cannot be blank/empty."
-        exitError 130
-    elif [ "$1" = 'dne' ]; then
-        writeLog 'done' 'error'
-        writeLog 'error' '11' "details:${2} file or directory does not exist."
-        exitError 131
-    fi
-}
 
 consoleError() {
     printf "\n%s%s\n" "$err" "$2"
@@ -127,7 +115,6 @@ writeLog() {
 # script related
 scriptPath="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)"
 scriptName="$(basename "$0")"
-configDetails="$scriptPath/${scriptName%.*}.details"
 errorCount=0
 warnCount=0
 backupLocation=""
@@ -136,6 +123,7 @@ restoreSQL=1
 restorePostfix=1
 restoreRedis=1
 restoreRspamd=1
+verbose=0
 # logfile default: same location and name as script but with '.log' extension
 logfile="$scriptPath/${scriptName%.*}.log"
 # mailcow/docker related
@@ -165,21 +153,7 @@ while [ $# -gt 0 ]; do
         shift
         ;;
     -v|--verbose)
-        # set verbose logging from borg
-        borgParams='--list'
-        ;;
-    -c|--config|--details)
-        # location of configuration details file
-        if [ -n "$2" ]; then
-            if [ -f "$2" ]; then
-                configDetails=${2%/}
-                shift
-            else
-                consoleError '1' "$1: configuration file ($2) does not exist."
-            fi
-        else
-            consoleError '1' "$1: cannot be blank/empty."
-        fi
+        verbose=1
         ;;
     -d|--docker-compose)
         # FULL path to docker-compose file
@@ -267,14 +241,6 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 if ! command -v docker >/dev/null; then
     consoleError '3' 'docker does not seem to be installed!'
 fi
-# borg installed?
-if ! command -v borg >/dev/null; then
-    consoleError '3' 'borgbackup does not seem to be installed!'
-fi
-# details file?
-if [ ! -f "$configDetails" ]; then
-    consoleError '1' "configuration file ($configDetails) cannot be found."
-fi
 # mailcow.conf?
 if [ ! -f "$mcConfig" ]; then
     consoleError '1' "mailcow configuration file ($mcConfig) cannot be found."
@@ -335,104 +301,11 @@ dockerVolumeCrypt=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJE
 printf "%s[%s] -- [INFO] Using MAILCRYPT volume: %s --%s\n" \
     "$cyan" "$(stamp)" "$dockerVolumeCrypt" "$norm" >>"$logfile"
 
-### source configuration details file
-case "${configDetails}" in
-/*)
-    # absolute path, no need to rewrite variable
-    # shellcheck source=./backup.details
-    . "${configDetails}"
-    ;;
-*)
-    # relative path, prepend './' to create absolute path
-    # shellcheck source=./backup.details
-    . "./${configDetails}"
-    ;;
-esac
-writeLog 'info' "Configuration file: ${yellow}${configDetails}${info} imported"
-
-### verify borg variables
-# verify borg base directory
-writeLog 'task' 'Verify details:borgBaseDir'
-if [ -z "${borgBaseDir}" ]; then
-    badDetails empty 'borgBaseDir'
-elif [ ! -d "${borgBaseDir}" ]; then
-    badDetails dne 'borgBaseDir'
-fi
-export BORG_BASE_DIR="${borgBaseDir%/}"
-writeLog 'done'
-# check path to SSH keyfile
-writeLog 'task' 'Verify details:borgSSHKey'
-if [ -z "${borgSSHKey}" ]; then
-    badDetails empty 'borgSSHKey'
-elif [ ! -f "${borgSSHKey}" ]; then
-    badDetails dne 'borgSSHKey'
-fi
-export BORG_RSH="ssh -i ${borgSSHKey}"
-writeLog 'done'
-# check borg repo connect string
-writeLog 'task' 'Verify details:borgConnectRepo'
-if [ -z "${borgConnectRepo}" ]; then
-    badDetails empty 'borgConnectRepo'
-fi
-export BORG_REPO="${borgConnectRepo}"
-writeLog 'done'
-# check borg repo password
-writeLog 'task' 'Verify details:borgRepoPassphrase'
-if [ -z "${borgRepoPassphrase}" ]; then
-    # an empty repo passphrase is considered a mistake so throw an error
-    # if the user meant to enter an empty passphrase they should use 'NONE'
-    badDetails empty 'borgRepoPassphrase'
-elif [ "${borgRepoPassphrase}" = 'NONE' ]; then
-    # password intentionally blank, use but issue warning
-    export BORG_PASSPHRASE=''
-    writeLog 'done' 'warn'
-    writeLog 'warn' 'Using a borg repo with a blank password is an insecure configuration!'
-    warnCount=$((warnCount + 1))
-else
-    export BORG_PASSPHRASE="${borgRepoPassphrase}"
-    writeLog 'done'
-fi
-# check borg repo keyfile location
-writeLog 'task' 'Verify details:borgKeyfileLocation'
-if [ -z "${borgKeyfileLocation}" ]; then
-    # will use default location
-    writeLog 'done'
-else
-    # verify keyfile location exists
-    if [ ! -f "${borgKeyfileLocation}" ]; then
-        badDetails dne 'bogKeyfileLocation'
-    fi
-    export BORG_KEY_FILE="${borgKeyfileLocation}"
-    writeLog 'done'
-fi
-# export borg remote path, if specified
-if [ -n "${borgRemote}" ]; then export BORG_REMOTE_PATH="${borgRemote}"; fi
-
-### create borg temp dir
-## python requires a writable temporary directory when unpacking borg and
-## executing commands. This defaults to /tmp but many systems mount /tmp with
-## the 'noexec' option for security. Thus, we will use/create a 'tmp' folder
-## within the BORG_BASE_DIR and instruct python to use that instead of /tmp
-
-# check if BORG_BASE_DIR/tmp exists, if not, create it
-if [ ! -d "${borgBaseDir}/tmp" ]; then
-    if ! mkdir "${borgBaseDir}/tmp" 2>/dev/null; then
-        writeLog 'error' '31' "Unable to create borg temp directory (${borgBaseDir}/tmp)"
-        exitError 31
-    fi
-fi
-export TMPDIR="${borgBaseDir}/tmp"
-
-### change to mailcow directory so docker commands run properly
-cd "$(dirname ${mcConfig})" || writeLog 'error' '100' "Could not change to mailcow directory." && exitError 100
 
 #TODO: stop containers
-#TODO: pull backup via borg
 #TODO: copy backups to correct docker volumes
-#TODO: copy additional files to correct locations
 #TODO: restart docker containers
 #TODO: optionally reindex dovecot (parameter)
-#TODO: delete downloaded backup (parameter)
 
 ### exit gracefully
 writeLog 'success' "All processes completed"
@@ -450,13 +323,10 @@ exit 0
 ### error codes:
 # 1: parameter error
 # 2: not run as root
-# 3: borg or docker not installed
-# 10: null configuration variable in details file
-# 11: invalid configuration variable in details file
+# 3: docker not installed
 # 99: TERM signal trapped
 # 100: could not change to mailcow-dockerized directory
 # 101: could not stop container(s)
 # 102: could not start container(s)
-# 110: borg exited with a critical error
 
 #EOF
