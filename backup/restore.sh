@@ -160,6 +160,9 @@ while [ $# -gt 0 ]; do
 done
 
 ### pre-flight checks
+# set path so checks are valid for this script environment
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
 # docker installed?
 if ! command -v docker >/dev/null; then
     consoleError '3' 'docker does not seem to be installed!'
@@ -184,7 +187,6 @@ fi
 ### read mailcow.conf and import vars
 # shellcheck source=./mailcow.conf.shellcheck
 . "$mcConfig"
-export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 export COMPOSE_HTTP_TIMEOUT="$dockerStartTimeout"
 
 ### start logging
