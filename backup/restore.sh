@@ -118,6 +118,7 @@ scriptName="$(basename "$0")"
 errorCount=0
 warnCount=0
 backupLocation=""
+sqlBackup=""
 restoreMail=1
 restoreSQL=1
 restorePostfix=1
@@ -129,6 +130,7 @@ logfile="$scriptPath/${scriptName%.*}.log"
 # mailcow/docker related
 mcConfig='/opt/mailcow-dockerized/mailcow.conf'
 mcDockerCompose='/opt/mailcow-dockerized/docker-compose.yml'
+sqlRunning=0
 dockerStartTimeout=180
 dockerStopTimeout=120
 
@@ -303,6 +305,43 @@ if [ -z "$dockerVolumeMail" ] || [ -z "$dockerVolumeCrypt" ]; then
     exitError 5
 fi
 
+### restore SQL
+if [ "$restoreSQL" -eq 1 ]; then
+    writeLog 'task' "Restoring mailcow database"
+
+    # sql restore pre-requisites
+    sqlBackup=$(find "${backupLocation}/tmp" -iname "*.sql")
+    if [ -n "$sqlBackup" ]; then
+        # start mysql container if not already running
+        if ! docker container inspect -f '{{ .State.Running }}' ${COMPOSE_PROJECT_NAME}_mysql-mailcow_1 > /dev/null 2>&1; then
+            docker-compose up -d mysql-mailcow
+            if docker container inspect -f '{{ .State.Running }}' ${COMPOSE_PROJECT_NAME}_mysql-mailcow_1 > /dev/null 2>&1; then
+                sqlRunning=1
+            else
+                writeLog 'done' 'error'
+                writeLog 'error' '12' "Cannot start mysql-mailcow container -- cannot restore mailcow database!"
+                errorCount=$((errorCount+1))
+            fi
+        else
+            sqlRunning=1
+        fi
+    else
+        writeLog 'done' 'error'
+        writeLog 'error' '11' "Cannot locate SQL backup -- cannot restore mailcow database!"
+        errorCount=$((errorCount+1))
+    fi
+
+    # restore sql
+    if [ "$sqlRunning" -eq 1 ]; then
+        if docker exec -i "$(docker-compose ps -q mysql-mailcow)" mysql -u${DBUSER} -p${DBPASS} ${DBNAME} < "${sqlBackup}" > /dev/null 2>&1; then
+            writeLog 'done'
+        else
+            writeLog 'done' 'error'
+            writeLog 'error' '13' "Something went wrong while trying to restore SQL database. Perhaps try again?"
+        fi
+    fi
+fi
+
 #TODO: stop containers
 #TODO: copy backups to correct docker volumes
 #TODO: restart docker containers
@@ -325,7 +364,12 @@ exit 0
 # 1: parameter error
 # 2: not run as root
 # 3: docker not installed
+# 4: cannot change to mailcow directory
 # 5: mailcow not initialized before running script
+# 1x: SQL errors
+#     11: cannot locate SQL dump in backup directory
+#     12: cannot start mysql-mailcow container
+#     13: restoring SQL dump was unsuccessful
 # 99: TERM signal trapped
 # 100: could not change to mailcow-dockerized directory
 # 101: could not stop container(s)
