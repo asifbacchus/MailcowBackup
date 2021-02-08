@@ -286,22 +286,17 @@ writeLog 'info' "Log located at $logfile"
 
 ### get location of docker volumes
 dockerVolumeMail=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_vmail-vol-1)
-printf "%s[%s] -- [INFO] Using MAIL volume: %s --%s\n" \
-    "$cyan" "$(stamp)" "$dockerVolumeMail" "$norm" >>"$logfile"
-dockerVolumeRspamd=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_rspamd-vol-1)
-printf "%s[%s] -- [INFO] Using RSPAMD volume: %s --%s\n" \
-    "$cyan" "$(stamp)" "$dockerVolumeRspamd" "$norm" >>"$logfile"
-dockerVolumePostfix=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_postfix-vol-1)
-printf "%s[%s] -- [INFO] Using POSTFIX volume: %s --%s\n" \
-    "$cyan" "$(stamp)" "$dockerVolumePostfix" "$norm" >>"$logfile"
-dockerVolumeRedis=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_redis-vol-1)
-printf "%s[%s] -- [INFO] Using REDIS volume: %s --%s\n" \
-    "$cyan" "$(stamp)" "$dockerVolumeRedis" "$norm" >>"$logfile"
+writeLog 'info' "Using MAIL volume: ${dockerVolumeMail}"
 dockerVolumeCrypt=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_crypt-vol-1)
-printf "%s[%s] -- [INFO] Using MAILCRYPT volume: %s --%s\n" \
-    "$cyan" "$(stamp)" "$dockerVolumeCrypt" "$norm" >>"$logfile"
+writeLog 'info' "Using MAILCRYPT volume: ${dockerVolumeCrypt}"
+dockerVolumePostfix=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_postfix-vol-1)
+writeLog 'info' "Using POSTFIX volume: ${dockerVolumePostfix}"
+dockerVolumeRedis=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_redis-vol-1)
+writeLog 'info' "Using REDIS volume: ${dockerVolumeRedis}"
+dockerVolumeRspamd=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_rspamd-vol-1)
+writeLog 'info' "Using RSPAMD volume: ${dockerVolumeRspamd}"
 # exit if mail or crypt containers cannot be found (mailcow not initialized beforehand)
-if [ -z $dockerVolumeMail ] || [ -z $dockerVolumeCrypt ]; then
+if [ -z "$dockerVolumeMail" ] || [ -z "$dockerVolumeCrypt" ]; then
     writeLog 'error' '5' "Cannot find mail volume. Mailcow probably not initialized before running restore."
     exitError 5
 fi
