@@ -249,6 +249,8 @@ fi
 if [ ! -f "$mcDockerCompose" ]; then
     consoleError '1' "docker-compose configuration ($mcDockerCompose) cannot be found."
 fi
+# change to mailcow directory so commands execute properly
+\cd ${mcConfig%/*} || consoleError '4' 'Cannot change to mailcow directory as determined from mailcow.conf location.'
 
 ### read mailcow.conf and import vars
 # shellcheck source=./mailcow.conf.shellcheck
