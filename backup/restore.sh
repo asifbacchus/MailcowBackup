@@ -346,7 +346,16 @@ if [ "$restoreSQL" -eq 1 ]; then
     fi
 fi
 
-#TODO: stop containers
+### stop containers (necessary for all restore operations except SQL)
+if ! docker-compose down > /dev/null 2>&1; then
+    writeLog 'error' '20' "Unable to bring mailcow containers down -- cannot reliably restore. Aborting."
+    exitError 20
+fi
+if [ "$( docker ps --filter "name=${COMPOSE_PROJECT_NAME}" -q | wc -l )" -gt 0 ]; then
+    writeLog 'error' '20' "Unable to bring mailcow containers down -- cannot reliably restore. Aborting."
+    exitError 20
+fi
+
 #TODO: copy backups to correct docker volumes
 #TODO: restart docker containers
 #TODO: optionally reindex dovecot (parameter)
