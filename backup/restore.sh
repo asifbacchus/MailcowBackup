@@ -353,17 +353,18 @@ fi
 #TODO: optionally reindex dovecot (parameter)
 
 ### exit gracefully
-writeLog 'success' "All processes completed"
-printf "%s[%s] --- %s execution completed ---\n%s" "$magenta" "$(stamp)" "$scriptName" "$norm" >>"$logfile"
-# note non-terminating errors
 if [ "$errorCount" -gt 0 ]; then
-    printf "%s%s errors encountered!%s\n" "$err" "$errorCount" "$norm" >>"$logfile"
+    # note non-terminating errors
+    printf "%s[%s] --- %s execution completed with %s error(s) ---\n%s" "$err" "$(stamp)" "$scriptName" "$errorCount" "$norm" >>"$logfile"
+    exit 98
+elif [ "$warnCount" -gt 0 ]; then
+    printf "%s[%s] --- %s execution completed with %s warning(s) ---\n%s" "$yellow" "$(stamp)" "$scriptName" "$warnCount" "$norm" >>"$logfile"
+    exit 97
+else
+    writeLog 'success' "All processes completed"
+    printf "%s[%s] --- %s execution completed ---\n%s" "$magenta" "$(stamp)" "$scriptName" "$norm" >>"$logfile"
+    exit 0
 fi
-# note warnings
-if [ "$warnCount" -gt 0 ]; then
-    printf "%s%s warnings issued!%s\n" "$yellow" "$warnCount" "$norm" >>"$logfile"
-fi
-exit 0
 
 ### error codes:
 # 1: parameter error
@@ -375,6 +376,8 @@ exit 0
 #     11: cannot locate SQL dump in backup directory
 #     12: cannot start mysql-mailcow container
 #     13: restoring SQL dump was unsuccessful
+# 97: script completed with 1 or more warnings
+# 98: script completed with 1 or more non-terminating errors
 # 99: TERM signal trapped
 # 100: could not change to mailcow-dockerized directory
 # 101: could not stop container(s)
