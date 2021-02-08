@@ -379,8 +379,5 @@ fi
 # 97: script completed with 1 or more warnings
 # 98: script completed with 1 or more non-terminating errors
 # 99: TERM signal trapped
-# 100: could not change to mailcow-dockerized directory
-# 101: could not stop container(s)
-# 102: could not start container(s)
 
 #EOF
