@@ -300,7 +300,11 @@ printf "%s[%s] -- [INFO] Using REDIS volume: %s --%s\n" \
 dockerVolumeCrypt=$(docker volume inspect -f '{{ .Mountpoint }}' ${COMPOSE_PROJECT_NAME}_crypt-vol-1)
 printf "%s[%s] -- [INFO] Using MAILCRYPT volume: %s --%s\n" \
     "$cyan" "$(stamp)" "$dockerVolumeCrypt" "$norm" >>"$logfile"
-
+# exit if mail or crypt containers cannot be found (mailcow not initialized beforehand)
+if [ -z $dockerVolumeMail ] || [ -z $dockerVolumeCrypt ]; then
+    writeLog 'error' '5' "Cannot find mail volume. Mailcow probably not initialized before running restore."
+    exitError 5
+fi
 
 #TODO: stop containers
 #TODO: copy backups to correct docker volumes
@@ -324,6 +328,7 @@ exit 0
 # 1: parameter error
 # 2: not run as root
 # 3: docker not installed
+# 5: mailcow not initialized before running script
 # 99: TERM signal trapped
 # 100: could not change to mailcow-dockerized directory
 # 101: could not stop container(s)
