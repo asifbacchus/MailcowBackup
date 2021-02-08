@@ -84,7 +84,6 @@ textNewline() {
 
 trapExit() {
     printf "%s[%s] -- [ERROR] 99: Caught signal --%s\n" "$err" "$(stamp)" "$norm" >>"$logfile"
-    cleanup
     printf "%s[%s] --- %s execution terminated via signal ---\n%s" "$err" "$(stamp)" "$scriptName" "$norm" >>"$logfile"
     exit 99
 }
@@ -318,7 +317,7 @@ if [ "$restoreSQL" -eq 1 ]; then
     if [ -n "$sqlBackup" ]; then
         # start mysql container if not already running
         if ! docker container inspect -f '{{ .State.Running }}' ${COMPOSE_PROJECT_NAME}_mysql-mailcow_1 > /dev/null 2>&1; then
-            docker-compose up -d mysql-mailcow
+            docker-compose up -d mysql-mailcow > /dev/null 2>&1
             if docker container inspect -f '{{ .State.Running }}' ${COMPOSE_PROJECT_NAME}_mysql-mailcow_1 > /dev/null 2>&1; then
                 sqlRunning=1
             else
