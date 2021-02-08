@@ -227,7 +227,7 @@ while [ $# -gt 0 ]; do
         restoreRspamd=0
         ;;
     *)
-        printf "\n%Unknown option: %s\n" "$err" "$1"
+        printf "\n%sUnknown option: %s\n" "$err" "$1"
         printf "Use '--help' for valid options.%s\n\n" "$norm"
         exit 1
         ;;
@@ -252,7 +252,7 @@ if [ ! -f "$mcDockerCompose" ]; then
     consoleError '1' "docker-compose configuration ($mcDockerCompose) cannot be found."
 fi
 # change to mailcow directory so commands execute properly
-\cd ${mcConfig%/*} || consoleError '4' 'Cannot change to mailcow directory as determined from mailcow.conf location.'
+\cd "${mcConfig%/*}" || consoleError '4' 'Cannot change to mailcow directory as determined from mailcow.conf location.'
 
 ### read mailcow.conf and import vars
 # shellcheck source=./mailcow.conf.shellcheck
