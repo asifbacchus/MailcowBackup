@@ -342,6 +342,7 @@ if [ "$restoreSQL" -eq 1 ]; then
         else
             writeLog 'done' 'error'
             writeLog 'error' '13' "Something went wrong while trying to restore SQL database. Perhaps try again?"
+            errorCount=$((errorCount+1))
         fi
     fi
 fi
