@@ -130,6 +130,12 @@ scriptName="$(basename "$0")"
 configDetails="$scriptPath/${scriptName%.*}.details"
 errorCount=0
 warnCount=0
+backupLocation=""
+restoreMail=1
+restoreSQL=1
+restorePostfix=1
+restoreRedis=1
+restoreRspamd=1
 # logfile default: same location and name as script but with '.log' extension
 logfile="$scriptPath/${scriptName%.*}.log"
 # mailcow/docker related
@@ -146,9 +152,103 @@ fi
 ### process startup parameters
 while [ $# -gt 0 ]; do
     case "$1" in
-    -h | -\? | --help)
+    -h|-\?|--help)
         # display help
         scriptHelp
+        ;;
+    -l|--log)
+        # set logfile location
+        if [ -z "$2" ]; then
+            consoleError '1' "Log file path cannot be null. Leave unspecified to save log in the same directory as this script."
+        fi
+        logfile="$2"
+        shift
+        ;;
+    -v|--verbose)
+        # set verbose logging from borg
+        borgParams='--list'
+        ;;
+    -c|--config|--details)
+        # location of configuration details file
+        if [ -n "$2" ]; then
+            if [ -f "$2" ]; then
+                configDetails=${2%/}
+                shift
+            else
+                consoleError '1' "$1: configuration file ($2) does not exist."
+            fi
+        else
+            consoleError '1' "$1: cannot be blank/empty."
+        fi
+        ;;
+    -d|--docker-compose)
+        # FULL path to docker-compose file
+        if [ -n "$2" ]; then
+            if [ -f "$2" ]; then
+                mcDockerCompose="$2"
+                shift
+            else
+                consoleError '1' "$1: cannot find docker-compose file as specified."
+            fi
+        else
+            consoleError '1' "$1: cannot be blank/empty."
+        fi
+        ;;
+    -m|--mailcow-config)
+    # FULL path to mailcow configuration file file
+        if [ -n "$2" ]; then
+            if [ -f "$2" ]; then
+                mcConfig="$2"
+                shift
+            else
+                consoleError '1' "$1: cannot find mailcow configuration file as specified."
+            fi
+        else
+            consoleError '1' "$1: cannot be blank/empty."
+        fi
+        ;;
+    -t1|--timeout-start)
+        if [ -z "$2" ]; then
+            consoleError '1' "$1: cannot be blank/empty."
+        else
+            dockerStartTimeout="$2"
+            shift
+        fi
+        ;;
+    -t2|--timeout-stop)
+        if [ -z "$2" ]; then
+            consoleError '1' "$1: cannot be blank/empty."
+        else
+            dockerStopTimeout="$2"
+            shift
+        fi
+        ;;
+    -b|--backup-location)
+        if [ -n "$2" ]; then
+            if [ -d "$2" ] && [ -n "$( ls -A "$2" )" ]; then
+                backupLocation="$2"
+                shift
+            else
+                consoleError '1' "$1: cannot find specified backup location directory or it is empty."
+            fi
+        else
+            consoleError '1' "$1: cannot be blank/empty."
+        fi
+        ;;
+    --skip-mail)
+        restoreMail=0
+        ;;
+    --skip-sql)
+        restoreSQL=0
+        ;;
+    --skip-postfix)
+        restorePostfix=0
+        ;;
+    --skip-redis)
+        restoreRedis=0
+        ;;
+    --skip-rspamd)
+        restoreRspamd=0
         ;;
     *)
         printf "\n%Unknown option: %s\n" "$err" "$1"
