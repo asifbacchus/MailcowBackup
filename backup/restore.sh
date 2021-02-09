@@ -368,14 +368,18 @@ if [ "$restoreSQL" -eq 1 ]; then
 fi
 
 ### stop containers (necessary for all restore operations except SQL)
+writeLog 'task' "Stopping mailcow"
 if ! docker-compose down --timeout "${dockerStopTimeout}" > /dev/null 2>&1; then
+    writeLog 'done' 'error'
     writeLog 'error' '20' "Unable to bring mailcow containers down -- cannot reliably restore. Aborting."
     exitError 20
 fi
 if [ "$( docker ps --filter "name=${COMPOSE_PROJECT_NAME}" -q | wc -l )" -gt 0 ]; then
+    writeLog 'done' 'error'
     writeLog 'error' '20' "Unable to bring mailcow containers down -- cannot reliably restore. Aborting."
     exitError 20
 fi
+writeLog 'done'
 
 ### restore mail and encryption key
 if [ "$restoreMail" -eq 1 ]; then
@@ -554,10 +558,13 @@ if [ "$restoreRedis" -eq 1 ]; then
 fi
 
 ### restart mailcow
+writeLog 'task' "Starting mailcow"
 if ! docker-compose up -d > /dev/null 2>&1; then
+    writeLog 'done' 'warn'
     writeLog 'warn' '21' "Unable to automatically start mailcow containers. Please attempt a manual start and note any errors."
     warnCount=$((warnCount+1))
 fi
+writeLog 'done'
 
 ### exit gracefully
 if [ "$errorCount" -gt 0 ]; then
