@@ -690,7 +690,7 @@ printf "%s[%s] -- [INFO] Pre-backup tasks completed, calling borgbackup --%s\n" 
 ## construct the proper borg commandline
 # base command
 if [ "$exclusions" -eq 0 ]; then
-    borgCMD="borg --show-rc create ${borgCreateParams} \
+    borgCMD="borg create --show-rc ${borgCreateParams} \
         ::$(date +%Y-%m-%d_%H%M%S) \
         ${mcConfig%/*} \
         ${sqlDumpDir} \
@@ -701,7 +701,7 @@ if [ "$exclusions" -eq 0 ]; then
         ${dockerVolumeCrypt} \
         ${xtraList}"
 elif [ "$exclusions" -eq 1 ]; then
-    borgCMD="borg --show-rc create ${borgCreateParams} \
+    borgCMD="borg create --show-rc ${borgCreateParams} \
         --exclude-from ${borgExcludeListPath} \
         ::$(date +%Y-%m-%d_%H%M%S) \
         ${mcConfig%/*} \
