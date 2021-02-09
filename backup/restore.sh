@@ -71,8 +71,50 @@ doRestore() {
 scriptHelp() {
     textNewline
     printf "%sUsage: %s [parameters]%s\n\n" "$bold" "$scriptName" "$norm"
+    textblock "The only required parameter is -b | --backup-location."
+    textblock "If a parameter is not supplied, its default value will be used."
+    textblock "Switch parameters will only be activated if specified."
+    textblockHeader "script parameters"
+    textblockParam "-b | --backup-location"
+    textblock "Directory containing extracted backup files from borg repo. REQUIRED."
     textNewline
-    textblock "If a parameter is not supplied, its default value will be used. Switch parameters will remain DEactivated if NOT specified."
+    textblockParam "-l | --log" "scriptPath/scriptName.log"
+    textblock "Path to write log file. Best efforts will be made to create any specified paths."
+    textNewline
+    textblockParam "-v | --verbose" "false"
+    textblock "Enable verbose logging. This will list EVERY restored file possibly making your log file quite large! [SWITCH]"
+    textNewline
+    textblockParam "--skip-mail" "false"
+    textblock "Skip restoring mail and encryption key. [SWITCH]"
+    textNewline
+    textblockParam "--skip-sql" "false"
+    textblock "Skip restoring mailcow settings database. [SWITCH]"
+    textNewline
+    textblockParam "--skip-postfix" "false"
+    textblock "Skip restoring postfix settings. [SWITCH]"
+    textNewline
+    textblockParam "--skip-rspamd" "false"
+    textblock "Skip restoring Rspamd settings/configuration/history. [SWITCH]"
+    textNewline
+    textblockParam "--skip-redis" "false"
+    textblock "Skip restoring redis database. [SWITCH]"
+    textNewline
+    textblockParam "-? | -h | --help"
+    textblock "Display this help screen."
+    textblockHeader "mailcow parameters"
+    textblockParam "-d | --docker-compose" "/opt/mailcow-dockerized/docker-compose.yml"
+    textblock "FULL path to mailcow's 'docker-compose.yml' file."
+    textNewline
+    textblockParam "-m | --mailcow-config" "/opt/mailcow-dockerized/mailcow.conf"
+    textblock "FULL path to mailcow configuration file ('mailcow.conf'). The path of this file is also used to determine your mailcow directory."
+    textblockHeader "docker parameters"
+    textblockParam "-t1 | --timeout-start" "180"
+    textblock "Seconds to wait for docker containers to start."
+    textNewline
+    textblockParam "-t2 | --timeout-stop" "120"
+    textblock "Seconds to wait for docker containers to stop."
+    textNewline
+    textblock "More details and examples of script usage can be found in the repo wiki at ${yellow}https://git.asifbacchus.app/asif/MailcowBackup/wiki${norm}"
     textNewline
     exit 0
 }
@@ -86,7 +128,7 @@ textblock() {
 }
 
 textblockHeader() {
-    printf "\n%s%s***%s***%s\n" "$bold" "$magenta" "$1" "$norm"
+    printf "\n%s%s*** %s ***%s\n\n" "$bold" "$magenta" "$1" "$norm"
 }
 
 textblockParam() {
