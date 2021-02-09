@@ -57,7 +57,7 @@ doRestore() {
                 return 0
             fi
         else
-            if (! (cd "$sourceFiles/_data" && tar -cf - .) | (cd "${3}" && tar xvf -) ); then
+            if (! (cd "$sourceFiles/_data" && tar -cf - .) | (cd "${3}" && tar xvf -) > /dev/null 2>&1 ); then
                 return 1
             else
                 return 0
