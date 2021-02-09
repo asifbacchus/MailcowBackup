@@ -442,7 +442,117 @@ if [ "$restoreMail" -eq 1 ]; then
     esac
 fi
 
-#TODO: copy backups to correct docker volumes
+### restore postfix
+if [ "$restorePostfix" -eq 1 ]; then
+    if [ "$verbose" -eq 1 ]; then
+        writeLog 'info' "Restoring postfix files"
+    else
+        writeLog 'task' "Restoring postfix files"
+    fi
+
+    # restore email messages
+    doRestore "${COMPOSE_PROJECT_NAME}_postfix-vol-1" "$dockerVolumePostfix"; ec="$?"
+    case "$ec" in
+        0)
+            if [ "$verbose" -eq 1 ]; then
+                writeLog 'success' "Postfix files restored"
+            else
+                writeLog 'done'
+            fi
+            ;;
+        1)
+            if [ "$verbose" -eq 1 ]; then
+                writeLog 'error' '52' "There was an error restoring one or more postfix files."
+            else
+                writeLog 'done' 'error'
+                writeLog 'error' '52' "There was an error restoring one or more postfix files."
+            fi
+            ;;
+        2)
+            if [ "$verbose" -eq 1 ]; then
+                writeLog 'error' '51' "Cannot locate postfix backups!"
+            else
+                writeLog 'done' 'error'
+                writeLog 'error' '51' "Cannot locate postfix backups!"
+            fi
+            ;;
+    esac
+fi
+
+### restore rspamd
+if [ "$restoreRspamd" -eq 1 ]; then
+    if [ "$verbose" -eq 1 ]; then
+        writeLog 'info' "Restoring Rspamd files"
+    else
+        writeLog 'task' "Restoring Rspamd files"
+    fi
+
+    # restore email messages
+    doRestore "${COMPOSE_PROJECT_NAME}_rspamd-vol-1" "$dockerVolumeRspamd"; ec="$?"
+    case "$ec" in
+        0)
+            if [ "$verbose" -eq 1 ]; then
+                writeLog 'success' "Rspamd files restored"
+            else
+                writeLog 'done'
+            fi
+            ;;
+        1)
+            if [ "$verbose" -eq 1 ]; then
+                writeLog 'error' '52' "There was an error restoring one or more Rspamd files."
+            else
+                writeLog 'done' 'error'
+                writeLog 'error' '52' "There was an error restoring one or more Rspamd files."
+            fi
+            ;;
+        2)
+            if [ "$verbose" -eq 1 ]; then
+                writeLog 'error' '51' "Cannot locate Rspamd backups!"
+            else
+                writeLog 'done' 'error'
+                writeLog 'error' '51' "Cannot locate Rspamd backups!"
+            fi
+            ;;
+    esac
+fi
+
+### restore redis
+if [ "$restoreRedis" -eq 1 ]; then
+    if [ "$verbose" -eq 1 ]; then
+        writeLog 'info' "Restoring redis database"
+    else
+        writeLog 'task' "Restoring redis database"
+    fi
+
+    # restore email messages
+    doRestore "${COMPOSE_PROJECT_NAME}_redis-vol-1" "$dockerVolumeRedis"; ec="$?"
+    case "$ec" in
+        0)
+            if [ "$verbose" -eq 1 ]; then
+                writeLog 'success' "Redis database restored"
+            else
+                writeLog 'done'
+            fi
+            ;;
+        1)
+            if [ "$verbose" -eq 1 ]; then
+                writeLog 'error' '52' "There was an error restoring the redis database. This is usually *not* a serious issue."
+            else
+                writeLog 'done' 'error'
+                writeLog 'error' '52' "There was an error restoring the redis database. This is usually *not* a serious issue."
+            fi
+            ;;
+        2)
+            if [ "$verbose" -eq 1 ]; then
+                writeLog 'error' '51' "Cannot locate redis database backups!"
+            else
+                writeLog 'done' 'error'
+                writeLog 'error' '51' "Cannot locate redis database backups!"
+            fi
+            ;;
+    esac
+fi
+
 #TODO: restart docker containers
 #TODO: optionally reindex dovecot (parameter)
 
