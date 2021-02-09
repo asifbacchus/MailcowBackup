@@ -553,8 +553,11 @@ if [ "$restoreRedis" -eq 1 ]; then
     esac
 fi
 
-#TODO: restart docker containers
-#TODO: optionally reindex dovecot (parameter)
+### restart mailcow
+if ! docker-compose up -d > /dev/null 2>&1; then
+    writeLog 'warn' '21' "Unable to automatically start mailcow containers. Please attempt a manual start and note any errors."
+    warnCount=$((warnCount+1))
+fi
 
 ### exit gracefully
 if [ "$errorCount" -gt 0 ]; then
@@ -582,6 +585,7 @@ fi
 #     13: restoring SQL dump was unsuccessful
 # 2x: Docker/Docker-Compose errors
 #     20: cannot bring docker container(s) down successfully
+#     21: cannot bring docker container(s) up successfully
 # 5x: File restore errors
 #     51: cannot locate source files in backup directory
 #     52: error restoring one or more files
