@@ -164,6 +164,10 @@ scriptHelp() {
     textblock "Path to write log file"
     defaultsTextblock "(scriptPath/scriptName.log)"
     newline
+    switchTextblock "--compression"
+    textblock "Compression algorithm(s) that borg should use. Please run 'borg help compression' for details."
+    defaultsTextblock "(not specified, use borg default of lz4)"
+    newline
     switchTextblock "[SWITCH] -v | --verbose"
     textblock "Log borg output with increased verbosity (list all files). Careful! Your log file can get very large very quickly!"
     defaultsTextblock "(normal output, option is OFF)"
@@ -300,6 +304,15 @@ while [ $# -gt 0 ]; do
                 badParam empty "$@"
             fi
             ;;
+        --compression)
+            # set borg archive compression
+            if [ -n "$2" ]; then
+                borgCompression="$2"
+                shift
+            else
+                badParam empty "$@"
+            fi
+            ;;
         -v|--verbose)
             # set verbose logging from borg
             borgCreateParams='--list --stats'
@@ -419,7 +432,10 @@ fi
 if [ ! -f "$mcDockerCompose" ]; then
     badParam dne "(--docker-compose)" "$mcDockerCompose"
 fi
-
+# set compression level if specified
+if [ -n "$borgCompression" ]; then
+    borgCreateParams="${borgCreateParams} --compression ${borgCompression}"
+fi
 
 ### read mailcow.conf and set vars as needed
 # shellcheck source=./mailcow.conf.shellcheck
