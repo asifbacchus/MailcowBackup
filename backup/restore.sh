@@ -368,7 +368,7 @@ if [ "$restoreSQL" -eq 1 ]; then
 fi
 
 ### stop containers (necessary for all restore operations except SQL)
-if ! docker-compose down > /dev/null 2>&1; then
+if ! docker-compose down --timeout "${dockerStopTimeout}" > /dev/null 2>&1; then
     writeLog 'error' '20' "Unable to bring mailcow containers down -- cannot reliably restore. Aborting."
     exitError 20
 fi
