@@ -51,7 +51,7 @@ doRestore() {
     sourceFiles=$(find "${backupLocation}" -iname "${1}" -type d)
     if [ -n "$sourceFiles" ]; then
         if [ "$verbose" -eq 1 ]; then
-            if (! (cd "$sourceFiles/_data" && tar -cf - .) | (cd "${2}" && tar xvf -) > "$logfile" ); then
+            if (! (cd "$sourceFiles/_data" && tar -cf - .) | (cd "${2}" && tar xvf -) >> "$logfile" ); then
                 return 1
             else
                 return 0
