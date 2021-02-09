@@ -356,6 +356,48 @@ if [ "$( docker ps --filter "name=${COMPOSE_PROJECT_NAME}" -q | wc -l )" -gt 0 ]
     exitError 20
 fi
 
+### restore email and encryption key
+if [ "$restoreMail" -eq 1 ]; then
+    if [ "$verbose" -eq 1 ]; then
+        writeLog 'info' "Restoring email"
+    else
+        writeLog 'task' "Restoring email"
+    fi
+
+    # mail restore pre-requisites
+    mailBackup=$(find "${backupLocation}" -iname "${COMPOSE_PROJECT_LOCATION}_vmail-vol-1" -type d)
+    cryptBackup=$(find "${backupLocation}" -iname "${COMPOSE_PROJECT_LOCATION}_crypt-vol-1" -type d)
+    if [ -n "$mailBackup" ] && [ -n "$cryptBackup" ]; then
+        if [ "$verbose" -eq 1 ]; then
+            if ! (cd "$mailBackup/_data" && tar cf - .) | (cd "$dockerVolumeMail" && tar xvf -) > "$logfile"; then
+                writeLog 'error' '52' "There was an error restoring one or more email messages."
+                errorCount=$((errorCount+1))
+            fi
+            if ! (cd "$cryptBackup/_data" && tar cf - .) | (cd "$dockerVolumeCrypt" && tar xvf -) > "$logfile"; then
+                writeLog 'error' '53' "There was an error restoring mail encryption keys! Restored mail may *not* be readable!"
+                errorCount=$((errorCount+1))
+            fi
+        else
+            if ! (cd "$mailBackup/_data" && tar cf - .) | (cd "$dockerVolumeMail" && tar xvf -); then
+                writeLog 'error' '52' "There was an error restoring one or more email messages."
+                errorCount=$((errorCount+1))
+            fi
+            if ! (cd "$cryptBackup/_data" && tar cf - .) | (cd "$dockerVolumeCrypt" && tar xvf -); then
+                writeLog 'error' '53' "There was an error restoring mail encryption keys! Restored mail may *not* be readable!"
+                errorCount=$((errorCount+1))
+            fi
+        fi
+    else
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'error' '51' "Cannot locate email message and/or encryption key backups!"
+        else
+            writeLog 'done' 'error'
+            writeLog 'error' '51' "Cannot locate email message and/or encryption key backups!"
+        fi
+        errorCount=$((errorCount+1))
+    fi
+fi
+
 #TODO: copy backups to correct docker volumes
 #TODO: restart docker containers
 #TODO: optionally reindex dovecot (parameter)
@@ -384,6 +426,12 @@ fi
 #     11: cannot locate SQL dump in backup directory
 #     12: cannot start mysql-mailcow container
 #     13: restoring SQL dump was unsuccessful
+# 2x: Docker/Docker-Compose errors
+#     20: cannot bring docker container(s) down successfully
+# 5x: File restore errors
+#     51: cannot locate email/crypt files in backup directory
+#     52: error restoring one or more mail messages
+#     53: error restoring encryption keys, mail likely unreadable
 # 97: script completed with 1 or more warnings
 # 98: script completed with 1 or more non-terminating errors
 # 99: TERM signal trapped
