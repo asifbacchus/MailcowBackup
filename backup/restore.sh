@@ -500,7 +500,6 @@ if [ "$restorePostfix" -eq 1 ]; then
         writeLog 'task' "Restoring postfix files"
     fi
 
-    # restore email messages
     doRestore "${COMPOSE_PROJECT_NAME}_postfix-vol-1" "$dockerVolumePostfix"; ec="$?"
     case "$ec" in
         0)
@@ -537,7 +536,6 @@ if [ "$restoreRspamd" -eq 1 ]; then
         writeLog 'task' "Restoring Rspamd files"
     fi
 
-    # restore email messages
     doRestore "${COMPOSE_PROJECT_NAME}_rspamd-vol-1" "$dockerVolumeRspamd"; ec="$?"
     case "$ec" in
         0)
@@ -574,7 +572,6 @@ if [ "$restoreRedis" -eq 1 ]; then
         writeLog 'task' "Restoring redis database"
     fi
 
-    # restore email messages
     doRestore "${COMPOSE_PROJECT_NAME}_redis-vol-1" "$dockerVolumeRedis"; ec="$?"
     case "$ec" in
         0)
