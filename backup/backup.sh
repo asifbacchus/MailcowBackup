@@ -617,7 +617,7 @@ if [ "$use503" -eq 1 ]; then
 fi
 
 ### change to mailcow directory so docker commands execute properly
-cd "${mcConfig%/*}" || exitError 100 'Could not change to mailcow directory.'
+\cd "${mcConfig%/*}" || exitError 100 'Could not change to mailcow directory.'
 
 ### stop postfix and dovecot mail containers to prevent mailflow during backup
 doDocker stop postfix
