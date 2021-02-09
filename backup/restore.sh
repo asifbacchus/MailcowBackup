@@ -43,7 +43,7 @@ consoleError() {
 }
 
 exitError() {
-    printf "%s[%s] --- %s execution completed with error ---\n%s" "$err" "$(stamp)" "$scriptName" "$norm" >>"$logfile"
+    printf "%s[%s] --- %s execution completed with error ---\n%s" "$err" "$(stamp)" "$scriptName" "$norm" >> "$logfile"
     exit "$1"
 }
 
@@ -104,30 +104,30 @@ textNewline() {
 }
 
 trapExit() {
-    printf "%s[%s] -- [ERROR] 99: Caught signal --%s\n" "$err" "$(stamp)" "$norm" >>"$logfile"
-    printf "%s[%s] --- %s execution terminated via signal ---\n%s" "$err" "$(stamp)" "$scriptName" "$norm" >>"$logfile"
+    printf "%s[%s] -- [ERROR] 99: Caught signal --%s\n" "$err" "$(stamp)" "$norm" >> "$logfile"
+    printf "%s[%s] --- %s execution terminated via signal ---\n%s" "$err" "$(stamp)" "$scriptName" "$norm" >> "$logfile"
     exit 99
 }
 
 writeLog() {
     if [ "$1" = "task" ]; then
-        printf "%s[%s] -- [INFO] %s... " "$info" "$(stamp)" "$2" >>"$logfile"
+        printf "%s[%s] -- [INFO] %s... " "$info" "$(stamp)" "$2" >> "$logfile"
     elif [ "$1" = "done" ]; then
         if [ -z "$2" ]; then
-            printf "%sdone%s --\n%s" "$ok" "$info" "$norm" >>"$logfile"
+            printf "%sdone%s --\n%s" "$ok" "$info" "$norm" >> "$logfile"
         elif [ "$2" = "error" ]; then
-            printf "%sERROR%s --\n%s" "$err" "$info" "$norm" >>"$logfile"
+            printf "%sERROR%s --\n%s" "$err" "$info" "$norm" >> "$logfile"
         elif [ "$2" = "warn" ]; then
-            printf "%swarning%s --\n%s" "$yellow" "$info" "$norm" >>"$logfile"
+            printf "%swarning%s --\n%s" "$yellow" "$info" "$norm" >> "$logfile"
         fi
     elif [ "$1" = "error" ]; then
-        printf "%s[%s] -- [ERROR] %s: %s --\n%s" "$err" "$(stamp)" "$2" "$3" "$norm" >>"$logfile"
+        printf "%s[%s] -- [ERROR] %s: %s --\n%s" "$err" "$(stamp)" "$2" "$3" "$norm" >> "$logfile"
     elif [ "$1" = "warn" ]; then
-        printf "%s[%s] -- [WARNING] %s --\n%s" "$yellow" "$(stamp)" "$2" "$norm" >>"$logfile"
+        printf "%s[%s] -- [WARNING] %s --\n%s" "$yellow" "$(stamp)" "$2" "$norm" >> "$logfile"
     elif [ "$1" = "info" ]; then
-        printf "%s[%s] -- [INFO] %s --\n%s" "$info" "$(stamp)" "$2" "$norm" >>"$logfile"
+        printf "%s[%s] -- [INFO] %s --\n%s" "$info" "$(stamp)" "$2" "$norm" >> "$logfile"
     elif [ "$1" = "success" ]; then
-        printf "%s[%s] -- [SUCCESS] %s --\n%s" "$ok" "$(stamp)" "$2" "$norm" >>"$logfile"
+        printf "%s[%s] -- [SUCCESS] %s --\n%s" "$ok" "$(stamp)" "$2" "$norm" >> "$logfile"
     fi
 }
 
@@ -307,7 +307,7 @@ else
     fi
 fi
 # write initial log entries
-if ! printf "%s[%s] --- Start %s execution ---\n%s" "$magenta" "$(stamp)" "$scriptName" "$norm" 2>/dev/null >>"$logfile"; then
+if ! printf "%s[%s] --- Start %s execution ---\n%s" "$magenta" "$(stamp)" "$scriptName" "$norm" 2>/dev/null >> "$logfile"; then
     consoleError '1' "Unable to write to log file ($logfile)"
 fi
 writeLog 'info' "Log located at $logfile"
@@ -562,14 +562,14 @@ fi
 ### exit gracefully
 if [ "$errorCount" -gt 0 ]; then
     # note non-terminating errors
-    printf "%s[%s] --- %s execution completed with %s error(s) ---\n%s" "$err" "$(stamp)" "$scriptName" "$errorCount" "$norm" >>"$logfile"
+    printf "%s[%s] --- %s execution completed with %s error(s) ---\n%s" "$err" "$(stamp)" "$scriptName" "$errorCount" "$norm" >> "$logfile"
     exit 98
 elif [ "$warnCount" -gt 0 ]; then
-    printf "%s[%s] --- %s execution completed with %s warning(s) ---\n%s" "$yellow" "$(stamp)" "$scriptName" "$warnCount" "$norm" >>"$logfile"
+    printf "%s[%s] --- %s execution completed with %s warning(s) ---\n%s" "$yellow" "$(stamp)" "$scriptName" "$warnCount" "$norm" >> "$logfile"
     exit 97
 else
     writeLog 'success' "All processes completed"
-    printf "%s[%s] --- %s execution completed ---\n%s" "$magenta" "$(stamp)" "$scriptName" "$norm" >>"$logfile"
+    printf "%s[%s] --- %s execution completed ---\n%s" "$magenta" "$(stamp)" "$scriptName" "$norm" >> "$logfile"
     exit 0
 fi
 
