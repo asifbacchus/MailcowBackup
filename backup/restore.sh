@@ -47,6 +47,27 @@ exitError() {
     exit "$1"
 }
 
+doRestore() {
+    sourceFiles=$(find "${backupLocation}" -iname "${1}" -type d)
+    if [ -n "$sourceFiles" ]; then
+        if [ "$verbose" -eq 1 ]; then
+            if (! (cd "$sourceFiles/_data" && tar -cf - .) | (cd "${2}" && tar xvf -) > "$logfile" ); then
+                return 1
+            else
+                return 0
+            fi
+        else
+            if (! (cd "$sourceFiles/_data" && tar -cf - .) | (cd "${3}" && tar xvf -) ); then
+                return 1
+            else
+                return 0
+            fi
+        fi
+    else
+        return 2
+    fi
+}
+
 scriptHelp() {
     textNewline
     printf "%sUsage: %s [parameters]%s\n\n" "$bold" "$scriptName" "$norm"
@@ -356,7 +377,7 @@ if [ "$( docker ps --filter "name=${COMPOSE_PROJECT_NAME}" -q | wc -l )" -gt 0 ]
     exitError 20
 fi
 
-### restore email and encryption key
+### restore mail and encryption key
 if [ "$restoreMail" -eq 1 ]; then
     if [ "$verbose" -eq 1 ]; then
         writeLog 'info' "Restoring email"
@@ -364,38 +385,61 @@ if [ "$restoreMail" -eq 1 ]; then
         writeLog 'task' "Restoring email"
     fi
 
-    # mail restore pre-requisites
-    mailBackup=$(find "${backupLocation}" -iname "${COMPOSE_PROJECT_LOCATION}_vmail-vol-1" -type d)
-    cryptBackup=$(find "${backupLocation}" -iname "${COMPOSE_PROJECT_LOCATION}_crypt-vol-1" -type d)
-    if [ -n "$mailBackup" ] && [ -n "$cryptBackup" ]; then
-        if [ "$verbose" -eq 1 ]; then
-            if ! (cd "$mailBackup/_data" && tar cf - .) | (cd "$dockerVolumeMail" && tar xvf -) > "$logfile"; then
+    # restore email messages
+    doRestore "${COMPOSE_PROJECT_NAME}_vmail-vol-1" "$dockerVolumeMail"; ec="$?"
+    case "$ec" in
+        0)
+            if [ "$verbose" -eq 1 ]; then
+                writeLog 'success' "Email messages restored"
+            else
+                writeLog 'done'
+            fi
+            ;;
+        1)
+            if [ "$verbose" -eq 1 ]; then
                 writeLog 'error' '52' "There was an error restoring one or more email messages."
-                errorCount=$((errorCount+1))
-            fi
-            if ! (cd "$cryptBackup/_data" && tar cf - .) | (cd "$dockerVolumeCrypt" && tar xvf -) > "$logfile"; then
-                writeLog 'error' '53' "There was an error restoring mail encryption keys! Restored mail may *not* be readable!"
-                errorCount=$((errorCount+1))
-            fi
-        else
-            if ! (cd "$mailBackup/_data" && tar cf - .) | (cd "$dockerVolumeMail" && tar xvf -); then
+            else
+                writeLog 'done' 'error'
                 writeLog 'error' '52' "There was an error restoring one or more email messages."
-                errorCount=$((errorCount+1))
             fi
-            if ! (cd "$cryptBackup/_data" && tar cf - .) | (cd "$dockerVolumeCrypt" && tar xvf -); then
-                writeLog 'error' '53' "There was an error restoring mail encryption keys! Restored mail may *not* be readable!"
-                errorCount=$((errorCount+1))
+            ;;
+        2)
+            if [ "$verbose" -eq 1 ]; then
+                writeLog 'error' '51' "Cannot locate email message backups!"
+            else
+                writeLog 'done' 'error'
+                writeLog 'error' '51' "Cannot locate email message backups!"
             fi
-        fi
-    else
-        if [ "$verbose" -eq 1 ]; then
-            writeLog 'error' '51' "Cannot locate email message and/or encryption key backups!"
-        else
-            writeLog 'done' 'error'
-            writeLog 'error' '51' "Cannot locate email message and/or encryption key backups!"
-        fi
-        errorCount=$((errorCount+1))
-    fi
+            ;;
+    esac
+
+    # restore encryption key
+    doRestore "${COMPOSE_PROJECT_NAME}_crypt-vol-1" "$dockerVolumeCrypt"; ec="$?"
+    case "$ec" in
+        0)
+            if [ "$verbose" -eq 1 ]; then
+                writeLog 'success' "Encryption key restored"
+            else
+                writeLog 'done'
+            fi
+            ;;
+        1)
+            if [ "$verbose" -eq 1 ]; then
+                writeLog 'error' '52' "There was an error restoring the encryption key! Any restored messages are likely *not* readable!"
+            else
+                writeLog 'done' 'error'
+                writeLog 'error' '52' "There was an error restoring the encryption key! Any restored messages are likely *not* readable!"
+            fi
+            ;;
+        2)
+            if [ "$verbose" -eq 1 ]; then
+                writeLog 'error' '51' "Cannot locate encryption key backup!"
+            else
+                writeLog 'done' 'error'
+                writeLog 'error' '51' "Cannot locate encryption key backup!"
+            fi
+            ;;
+    esac
 fi
 
 #TODO: copy backups to correct docker volumes
@@ -429,9 +473,8 @@ fi
 # 2x: Docker/Docker-Compose errors
 #     20: cannot bring docker container(s) down successfully
 # 5x: File restore errors
-#     51: cannot locate email/crypt files in backup directory
-#     52: error restoring one or more mail messages
-#     53: error restoring encryption keys, mail likely unreadable
+#     51: cannot locate source files in backup directory
+#     52: error restoring one or more files
 # 97: script completed with 1 or more warnings
 # 98: script completed with 1 or more non-terminating errors
 # 99: TERM signal trapped
