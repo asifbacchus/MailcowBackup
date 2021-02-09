@@ -256,9 +256,13 @@ while [ $# -gt 0 ]; do
 done
 
 ### pre-flight checks
+# ensure there's something to do
+if [ "$restoreMail" -eq 0 ] && [ "$restoreSQL" -eq 0 ] && [ "$restorePostfix" -eq 0 ] && [ "$restoreRedis" -eq 0 ] && [ "$restoreRedis" -eq 0 ]; then
+    printf "\n%sAll restore operations skipped -- nothing to do!%s\n\n" "$yellow" "$norm"
+    exit 0
+fi
 # set path so checks are valid for this script environment
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
 # docker installed?
 if ! command -v docker >/dev/null; then
     consoleError '3' 'docker does not seem to be installed!'
