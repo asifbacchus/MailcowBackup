@@ -367,6 +367,7 @@ while [ $# -gt 0 ]; do
                 badParam empty "$@"
             else
                 dockerStartTimeout="$2"
+                shift
             fi
             ;;
         -t2|--timeout-stop)
@@ -374,6 +375,7 @@ while [ $# -gt 0 ]; do
                 badParam empty "$@"
             else
                 dockerStopTimeout="$2"
+                shift
             fi
             ;;
         *)
