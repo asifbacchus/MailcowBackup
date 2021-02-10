@@ -1,4 +1,4 @@
-# Mailcow Backup Using borgbackup <!-- omit in toc -->
+# Mailcow Backup Using borgbackup
 
 This script automates backing up your Mailcow installation using borgbackup and a remote ssh-capable storage system.  I suggest using rsync.net since they
 have great speeds and a special pricing structure for borgbackup/attic users ([details here](https://www.rsync.net/products/attic.html)).
@@ -14,13 +14,18 @@ This script automates the following tasks:
 - Runs 'borg prune' to make sure you are trimming old backups on your schedule
 - Creates a clear, easy to parse log file so you can keep an eye on your backups and any errors/warnings
 
-## Contents <!-- omit in toc -->
+## contents
+
+<!-- toc -->
 
 - [quick start](#quick-start)
 - [configuration file](#configuration-file)
 - [running the script](#running-the-script)
 - [scheduling your backup via cron](#scheduling-your-backup-via-cron)
+- [restoring backups](#restoring-backups)
 - [final notes](#final-notes)
+
+<!-- tocstop -->
 
 ## quick start
 
