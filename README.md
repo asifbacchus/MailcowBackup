@@ -111,6 +111,10 @@ Edit your root user's crontab and add an entry like this which would run the scr
 7 1 * * * /scripts/backup/backup.sh -l /var/log/mailcow_backup.log > /dev/null 2>&1
 ```
 
+## restoring backups
+
+Starting with version 3.0, a *restore.sh* file has been included to semi-automate restoring your backups to a clean mailcow instance. There are a few steps required and they are better explained in the wiki than would be possible in a short write-up like this. Please check out the [restore process overview](https://git.asifbacchus.app/asif/MailcowBackup/wiki/8.0-Restore-overview) for more information.
+
 ## final notes
 
 I think that's everything. For detailed information, please review the [wiki](https://git.asifbacchus.app/asif/MailcowBackup/wiki/_pages). If I've forgotten to document something there, please let me know. I know the wiki is long but, I hate how much stuff for Linux and open-source programs/scripts in general are so poorly documented especially for newbies and I didn't want to make that same mistake.
