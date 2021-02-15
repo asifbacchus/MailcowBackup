@@ -49,12 +49,12 @@
 # include the paths to important configuration files/directories and/or
 # data directories
 
-# mailcow configuration (example)
+# mailcow configuration
 /opt/mailcow-dockerized/
 
-# NGINX (example)
+# NGINX (if this host is a reverse proxy, for example)
 /etc/nginx/
 /usr/share/nginx/html/
 
-# LetsEncrypt (example)
+# LetsEncrypt
 /etc/letsencrypt/
