@@ -36,12 +36,13 @@ borgRepoPassphrase="p@ssW0rd"
 # FULL PATH where the associated keyfile for your repo is located -- relevant
 # only if your repo requires a keyfile (i.e. 'keyfile' vs 'repokey') and if you
 # are not using the default keyfile location
-borgKeyfileLocation="/var/borgbackup/.config/borg/keys/server_address__repo_name"
+#borgKeyfileLocation="/var/borgbackup/.config/borg/keys/server_address__repo_name"
 
-# REQUIRED: path to text file containing a list (one per line) of files/
-# directories to include in your backup. Since this is a generic backup script,
-# nothing is defined by default. Therefore, ONLY files specified in this file
-# will be backed up!
+# additional files to backup
+# by default, the script will only backup your mailcow program directory
+# (e.g. /opt/mailcow-dockerized) and your mailcow data volumes. If you would
+# like additional files included (perhaps certificates, system configuration,
+# etc.) include those locations listed one item per line in the file below
 # see repo wiki for more details
 borgXtraListPath="/scripts/backup/xtraLocations.borg"
 
