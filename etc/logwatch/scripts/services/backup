@@ -3,8 +3,8 @@
 #############################################################################
 # $Id$
 #############################################################################
-# Log: Backup script (backup)
-# Revision 1.0  2018/10/16
+# Log: mailcow backup
+# Revision 1.1  2019/07/20
 # Written by Asif Bacchus
 #############################################################################
 
@@ -34,7 +34,7 @@ if ($detailLevel == 0) {
         elsif ($ThisLine =~ /\-- \[WARNING\] /) {
             $summaryWarn++;
         }
-        elsif ($ThisLine =~ /All processes completed successfully/) {
+        elsif ($ThisLine =~ /All processes completed/) {
             $summarySuccess++;
         }
     }
