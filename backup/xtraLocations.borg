@@ -50,7 +50,7 @@
 # data directories
 
 # mailcow configuration
-/opt/mailcow-dockerized/
+# already backed-up by the script by default based on mailcow.conf location
 
 # NGINX (if this host is a reverse proxy, for example)
 /etc/nginx/
