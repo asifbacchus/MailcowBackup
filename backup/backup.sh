@@ -153,6 +153,10 @@ scriptHelp() {
     newline
     textblock "${magenta}--- script related parameters ---${norm}"
     newline
+    switchTextblock "-b | --borg"
+    textblock "FULL path to borg executable file if not in the default location."
+    defaultsTextblock "(/usr/bin/borg)"
+    newline
     switchTextblock "-c | --config | --details"
     textblock "Path to the configuration key/value-pair file for this script."
     defaultsTextblock "(scriptPath/scriptName.details)"
@@ -262,6 +266,7 @@ configDetails="$scriptPath/${scriptName%.*}.details"
 err503Copied=0
 sqlDumpDirCreated=0
 exclusions=0
+borgPath="/usr/bin/borg"
 # borg output verbosity -- normal
 borgCreateParams='--stats'
 borgPruneParams='--list'
@@ -299,6 +304,15 @@ while [ $# -gt 0 ]; do
         --nc|--no-color|--no-colour)
             # do NOT colourize log file
             colourizeLogFile=0
+            ;;
+        -b|--borg)
+            # specify non-default borg path
+            if [ -n "$2" ]; then
+                borgPath="${2%/}"
+                shift
+            else
+                badParam empty "$@"
+            fi
             ;;
         -c|--config|--details)
             # location of config details file
@@ -421,8 +435,8 @@ if [ ! -f "$configDetails" ]; then
     badParam dne "(--details default)" "$configDetails"
 fi
 # is borg installed?
-if ! command -v borg > /dev/null; then
-    printf "\n%sERROR: BORG is not installed on this system!%s\n\n" "$err" "$norm"
+if ! find "$borgPath" -type f -executable > /dev/null 2>&1; then
+    printf "\n%sERROR: BORG cannot be found in the specified or default location on this system!%s\n\n" "$err" "$norm"
     exit 3
 fi
 # if 503 functionality is enabled, do 503 related files exist?
@@ -719,7 +733,7 @@ printf "%s[%s] -- [INFO] Pre-backup tasks completed, calling borgbackup --%s\n" 
 ## construct the proper borg commandline
 # base command
 if [ "$exclusions" -eq 0 ]; then
-    borgCMD="borg create --show-rc ${borgCreateParams} \
+    borgCMD="${borgPath} create --show-rc ${borgCreateParams} \
         ::$(date +%Y-%m-%d_%H%M%S) \
         ${mcConfig%/*} \
         ${sqlDumpDir} \
@@ -730,7 +744,7 @@ if [ "$exclusions" -eq 0 ]; then
         ${dockerVolumeCrypt} \
         ${xtraList}"
 elif [ "$exclusions" -eq 1 ]; then
-    borgCMD="borg create --show-rc ${borgCreateParams} \
+    borgCMD="${borgPath} create --show-rc ${borgCreateParams} \
         --exclude-from ${borgExcludeListPath} \
         ::$(date +%Y-%m-%d_%H%M%S) \
         ${mcConfig%/*} \
@@ -774,7 +788,7 @@ fi
 if [ -n "${borgPruneSettings}" ]; then
     printf "%s[%s] -- [INFO] Executing borg prune operation --%s\n" \
         "$cyan" "$(stamp)" "$norm" >> "$logFile"
-    borg prune --show-rc -v ${borgPruneParams} ${borgPruneSettings} \
+    "${borgPath}" prune --show-rc -v ${borgPruneParams} ${borgPruneSettings} \
         2>> "$logFile"
     borgPruneResult="$?"
 else
