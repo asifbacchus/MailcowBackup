@@ -529,7 +529,16 @@ elif [ ! -f "${borgSSHKey}" ]; then
 fi
 printf "%sdetails:borgSSHKey %s-- %s[OK]%s\n" \
     "$magenta" "$norm" "$ok" "$norm" >> "$logFile"
-export BORG_RSH="ssh -i ${borgSSHKey}"
+## check SSH port
+if [ -z "${borgSSHPort}" ]; then
+    borgSSHPort=22
+    printf "%sdetails:borgSSHPort %s-- %s[DEFAULT]%s\n" \
+        "$magenta" "$norm" "$ok" "$norm" >> "$logFile"
+else
+    printf "%sdetails:borgSSHPort %s-- %s[CUSTOM]%s\n" \
+        "$magenta" "$norm" "$ok" "$norm" >> "$logFile"
+fi
+export BORG_RSH="ssh -i ${borgSSHKey} -p ${borgSSHPort}"
 
 ## check borg repo connect string
 if [ -z "${borgConnectRepo}" ]; then

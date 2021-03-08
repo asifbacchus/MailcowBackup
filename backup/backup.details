@@ -18,14 +18,17 @@
 # base configuration directory for borg, all borg parameters use this directory
 # as their 'root'.  I recommend setups with this being "/var/borgbackup", the
 # default is "$HOME" or "~$USER" in that order.  If you're unsure, try "$HOME"
-borgBaseDir="/var/borgbackup"
+borgBaseDir = "/var/borgbackup"
+
+# SSH port on which your borg server listens. By default, this is port 22.
+borgSSHPort = 22
 
 # full path to the SSH key used to connect to your remote backup server
-borgSSHKey="/var/borgbackup/private.key"
+borgSSHKey = "/var/borgbackup/private.key"
 
 # connection string to access the borg repo on your remote backup server
 # this is usually in the form user@servername.tld:repoName/
-borgConnectRepo="jdoe123@borg.server.net:mailcow/"
+borgConnectRepo = "jdoe123@borg.server.net:mailcow/"
 
 # password to access repo
 # this was set when the repo was initialized and, while optional, is HIGHLY
