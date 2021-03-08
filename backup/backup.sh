@@ -703,7 +703,7 @@ docker-compose exec -T mysql-mailcow mysqldump --default-character-set=utf8mb4 \
 dumpResult=$( docker-compose exec -T mysql-mailcow echo "$?" )
 if [ "$dumpResult" -eq 0 ]; then
     printf "%s[%s] -- [INFO] SQL database dumped successfully --%s\n" \
-        "cyan" "$(stamp)" "$norm" >> "$logFile"
+        "$cyan" "$(stamp)" "$norm" >> "$logFile"
 else
     exitError 118 'There was an error dumping the mailcow SQL database.'
 fi
@@ -721,7 +721,7 @@ docker-compose exec -T redis-mailcow redis-cli save >> "$logFile" 2>&1
 rdumpResult=$( docker-compose exec -T redis-mailcow echo "$?" )
 if [ "$rdumpResult" -eq 0 ]; then
     printf "%s[%s] -- [INFO] mailcow redis dumped successfully --%s\n" \
-        "cyan" "$(stamp)" "$norm" >> "$logFile"
+        "$cyan" "$(stamp)" "$norm" >> "$logFile"
 else
     exitError 119 'There was an error dumping the mailcow redis database.'
 fi
