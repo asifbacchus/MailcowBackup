@@ -257,7 +257,7 @@ trapExit() {
 ## script related
 # store logfile in the same directory as this script file using the same file
 # name as the script but with the extension '.log'
-scriptPath="$( CDPATH='' cd -- "$( dirname -- "$0" )" && pwd -P )"
+scriptPath="$( CDPATH='' \cd -- "$( dirname -- "$0" )" && pwd -P )"
 scriptName="$( basename "$0" )"
 logFile="$scriptPath/${scriptName%.*}.log"
 colourizeLogFile=1
@@ -593,7 +593,7 @@ fi
 ## export borg remote path, if specified
 if [ -n "${borgRemote}" ]; then export BORG_REMOTE_PATH="${borgRemote}"; fi
 
-## check if exlusion list file is specified
+## check if exclusion list file is specified
 if [ -n "${borgExcludeListPath}" ]; then
     # check if the file actually exists
     if [ ! -f "${borgExcludeListPath}" ]; then
@@ -661,7 +661,7 @@ if [ "$use503" -eq 1 ]; then
     printf "%s[%s] -- [INFO] Copying 503 error page to " \
         "$cyan" "$(stamp)" >> "$logFile"
     printf "webroot -- %s\n" "$norm">> "$logFile"
-    if ! cp --force "${err503Path}" "${webroot}/${err503File}" 2>> "$logFile"
+    if ! \cp --force "${err503Path}" "${webroot}/${err503File}" 2>> "$logFile"
         then
         printf "%s[%s] -- [WARNING] Failed to copy 503 error page. " \
             "$warn" "$(stamp)" >> "$logFile"
