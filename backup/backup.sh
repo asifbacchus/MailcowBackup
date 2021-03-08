@@ -164,6 +164,10 @@ scriptHelp() {
     textblock "Path to write log file"
     defaultsTextblock "(scriptPath/scriptName.log)"
     newline
+    switchTextblock "[SWITCH] --nc | --no-color | --no-colour"
+    textblock "Do NOT use ANSI colourization in the log file (in case your preferred log viewer does not support it)."
+    defaultsTextblock "(use ANSI colourization to make log file look good)"
+    newline
     switchTextblock "--compression"
     textblock "Compression algorithm(s) that borg should use. Please run 'borg help compression' for details."
     defaultsTextblock "(not specified, use borg default of lz4)"
@@ -252,6 +256,7 @@ trapExit() {
 scriptPath="$( CDPATH='' cd -- "$( dirname -- "$0" )" && pwd -P )"
 scriptName="$( basename "$0" )"
 logFile="$scriptPath/${scriptName%.*}.log"
+colourizeLogFile=1
 warnCount=0
 configDetails="$scriptPath/${scriptName%.*}.details"
 err503Copied=0
@@ -290,6 +295,10 @@ while [ $# -gt 0 ]; do
             else
                 badParam empty "$@"
             fi
+            ;;
+        --nc|--no-color|--no-colour)
+            # do NOT colourize log file
+            colourizeLogFile=0
             ;;
         -c|--config|--details)
             # location of config details file
@@ -435,6 +444,17 @@ fi
 # set compression level if specified
 if [ -n "$borgCompression" ]; then
     borgCreateParams="${borgCreateParams} --compression ${borgCompression}"
+fi
+# remove colourization if parameter specified
+if [ "$colourizeLogFile" -eq 0 ]; then
+    bold=""
+    cyan=""
+    err=""
+    magenta=""
+    norm=""
+    ok=""
+    warn=""
+    yellow=""
 fi
 
 ### read mailcow.conf and set vars as needed
