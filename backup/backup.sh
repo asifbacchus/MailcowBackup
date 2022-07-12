@@ -145,7 +145,8 @@ exitError() {
 scriptHelp() {
     newline
     printf "%sUsage: %s [parameters]%s\n\n" "$bold" "$scriptName" "$norm"
-    textblock "There are NO mandatory parameters. If a parameter is not supplied, its default value will be used. In the case of a switch parameter, it will remain DEactivated if NOT specified."
+    textblock "There are NO mandatory parameters. If a parameter is not supplied, its default value will be used. In 
+    the case of a switch parameter, it will remain *deactivated* if NOT specified."
     newline
     textblock "Parameters are listed then followed by a description of their effect on the following line. Finally, if a default value exists, it will be listed on the next line in (parentheses)."
     newline
@@ -195,7 +196,7 @@ scriptHelp() {
     textblock "${magenta}--- mailcow related ---${norm}"
     newline
     switchTextblock "-d | --docker-compose"
-    textblock "Path to mailcow's 'docker-compose.yml' file."
+    textblock "Path to the mailcow 'docker-compose.yml' file."
     defaultsTextblock "(/opt/mailcow-dockerized/docker-compose.yml)"
     newline
     switchTextblock "-m | --mailcow-config"
@@ -782,7 +783,7 @@ else
     warnCount=$((warnCount + 1))
 fi
 
-### execute borg prune if paramters are provided, otherwise skip with a warning
+### execute borg prune if parameters are provided, otherwise skip with a warning
 if [ -n "${borgPruneSettings}" ]; then
     printf "%s[%s] -- [INFO] Executing borg prune operation --%s\n" \
         "$cyan" "$(stamp)" "$norm" >>"$logFile"
