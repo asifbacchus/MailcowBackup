@@ -110,7 +110,7 @@ cleanup() {
 }
 
 doDocker() {
-    containerName="$(docker ps -a --format '{{ .Names }}' --filter name=${COMPOSE_PROJECT_NAME}_${2}-mailcow_1)"
+    containerName="$(docker ps -a --format '{{ .Names }}' --filter "name=${COMPOSE_PROJECT_NAME}_${2}-mailcow_1" --filter "name=${COMPOSE_PROJECT_NAME}-${2}-mailcow-1")"
 
     # determine action to take
     if [ "$1" = "stop" ]; then
@@ -118,14 +118,14 @@ doDocker() {
             "$cyan" "$(stamp)" "$2" "$norm" >>"$logFile"
         ${dockerCmd} -f "$mcDockerCompose" stop --timeout "$dockerStopTimeout" "$2-mailcow" 2>>"$logFile"
         # set result vars
-        dockerResultState="$(docker inspect -f '{{ .State.Running }}' $containerName)"
-        dockerResultExit="$(docker inspect -f '{{ .State.ExitCode }}' $containerName)"
+        dockerResultState="$(docker inspect -f '{{ .State.Running }}' "$containerName")"
+        dockerResultExit="$(docker inspect -f '{{ .State.ExitCode }}' "$containerName")"
     elif [ "$1" = "start" ]; then
         printf "%s[%s] -- [INFO] Starting %s-mailcow container --%s\n" \
             "$cyan" "$(stamp)" "$2" "$norm" >>"$logFile"
         ${dockerCmd} -f "$mcDockerCompose" start "$2-mailcow" 2>>"$logFile"
         # set result vars
-        dockerResultState="$(docker inspect -f '{{ .State.Running }}' $containerName)"
+        dockerResultState="$(docker inspect -f '{{ .State.Running }}' "$containerName")"
     fi
 }
 
