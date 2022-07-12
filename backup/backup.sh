@@ -70,6 +70,7 @@ badParam() {
 cleanup() {
     # cleanup 503 if copied
     if [ "$err503Copied" -eq 1 ]; then
+        # shellcheck disable=SC2129
         if ! rm -f "$webroot/$err503File" 2>>"$logFile"; then
             printf "%s[%s] -- [WARNING] Could not remove 503 error page." \
                 "$warn" "$(stamp)" >>"$logFile"
@@ -785,6 +786,7 @@ fi
 if [ -n "${borgPruneSettings}" ]; then
     printf "%s[%s] -- [INFO] Executing borg prune operation --%s\n" \
         "$cyan" "$(stamp)" "$norm" >>"$logFile"
+    # shellcheck disable=SC2086
     "${borgPath}" prune --show-rc -v ${borgPruneParams} ${borgPruneSettings} \
         2>>"$logFile"
     borgPruneResult="$?"
