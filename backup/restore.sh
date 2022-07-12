@@ -43,7 +43,7 @@ consoleError() {
 }
 
 exitError() {
-    printf "%s[%s] --- %s execution completed with error ---\n%s" "$err" "$(stamp)" "$scriptName" "$norm" >> "$logfile"
+    printf "%s[%s] --- %s execution completed with error ---\n%s" "$err" "$(stamp)" "$scriptName" "$norm" >>"$logfile"
     exit "$1"
 }
 
@@ -51,13 +51,13 @@ doRestore() {
     sourceFiles=$(find "${backupLocation}" -iname "${1}" -type d)
     if [ -n "$sourceFiles" ]; then
         if [ "$verbose" -eq 1 ]; then
-            if (! (cd "$sourceFiles/_data" && tar -cf - .) | (cd "${2}" && tar xvf -) >> "$logfile" ); then
+            if ( ! (cd "$sourceFiles/_data" && tar -cf - .) | (cd "${2}" && tar xvf -) >>"$logfile"); then
                 return 1
             else
                 return 0
             fi
         else
-            if (! (cd "$sourceFiles/_data" && tar -cf - .) | (cd "${2}" && tar xvf -) > /dev/null 2>&1 ); then
+            if ( ! (cd "$sourceFiles/_data" && tar -cf - .) | (cd "${2}" && tar xvf -) >/dev/null 2>&1); then
                 return 1
             else
                 return 0
@@ -146,30 +146,30 @@ textNewline() {
 }
 
 trapExit() {
-    printf "%s[%s] -- [ERROR] 99: Caught signal --%s\n" "$err" "$(stamp)" "$norm" >> "$logfile"
-    printf "%s[%s] --- %s execution terminated via signal ---\n%s" "$err" "$(stamp)" "$scriptName" "$norm" >> "$logfile"
+    printf "%s[%s] -- [ERROR] 99: Caught signal --%s\n" "$err" "$(stamp)" "$norm" >>"$logfile"
+    printf "%s[%s] --- %s execution terminated via signal ---\n%s" "$err" "$(stamp)" "$scriptName" "$norm" >>"$logfile"
     exit 99
 }
 
 writeLog() {
     if [ "$1" = "task" ]; then
-        printf "%s[%s] -- [INFO] %s... " "$info" "$(stamp)" "$2" >> "$logfile"
+        printf "%s[%s] -- [INFO] %s... " "$info" "$(stamp)" "$2" >>"$logfile"
     elif [ "$1" = "done" ]; then
         if [ -z "$2" ]; then
-            printf "%sdone%s --\n%s" "$ok" "$info" "$norm" >> "$logfile"
+            printf "%sdone%s --\n%s" "$ok" "$info" "$norm" >>"$logfile"
         elif [ "$2" = "error" ]; then
-            printf "%sERROR%s --\n%s" "$err" "$info" "$norm" >> "$logfile"
+            printf "%sERROR%s --\n%s" "$err" "$info" "$norm" >>"$logfile"
         elif [ "$2" = "warn" ]; then
-            printf "%swarning%s --\n%s" "$yellow" "$info" "$norm" >> "$logfile"
+            printf "%swarning%s --\n%s" "$yellow" "$info" "$norm" >>"$logfile"
         fi
     elif [ "$1" = "error" ]; then
-        printf "%s[%s] -- [ERROR] %s: %s --\n%s" "$err" "$(stamp)" "$2" "$3" "$norm" >> "$logfile"
+        printf "%s[%s] -- [ERROR] %s: %s --\n%s" "$err" "$(stamp)" "$2" "$3" "$norm" >>"$logfile"
     elif [ "$1" = "warn" ]; then
-        printf "%s[%s] -- [WARNING] %s --\n%s" "$yellow" "$(stamp)" "$2" "$norm" >> "$logfile"
+        printf "%s[%s] -- [WARNING] %s --\n%s" "$yellow" "$(stamp)" "$2" "$norm" >>"$logfile"
     elif [ "$1" = "info" ]; then
-        printf "%s[%s] -- [INFO] %s --\n%s" "$info" "$(stamp)" "$2" "$norm" >> "$logfile"
+        printf "%s[%s] -- [INFO] %s --\n%s" "$info" "$(stamp)" "$2" "$norm" >>"$logfile"
     elif [ "$1" = "success" ]; then
-        printf "%s[%s] -- [SUCCESS] %s --\n%s" "$ok" "$(stamp)" "$2" "$norm" >> "$logfile"
+        printf "%s[%s] -- [SUCCESS] %s --\n%s" "$ok" "$(stamp)" "$2" "$norm" >>"$logfile"
     fi
 }
 
@@ -195,6 +195,7 @@ mcDockerCompose='/opt/mailcow-dockerized/docker-compose.yml'
 sqlRunning=0
 dockerStartTimeout=180
 dockerStopTimeout=120
+dockerCmd="docker compose"
 
 ### check if user is root
 if [ "$(id -u)" -ne 0 ]; then
@@ -204,11 +205,11 @@ fi
 ### process startup parameters
 while [ $# -gt 0 ]; do
     case "$1" in
-    -h|-\?|--help)
+    -h | -\? | --help)
         # display help
         scriptHelp
         ;;
-    -l|--log)
+    -l | --log)
         # set logfile location
         if [ -z "$2" ]; then
             consoleError '1' "Log file path cannot be null. Leave unspecified to save log in the same directory as this script."
@@ -216,10 +217,10 @@ while [ $# -gt 0 ]; do
         logfile="$2"
         shift
         ;;
-    -v|--verbose)
+    -v | --verbose)
         verbose=1
         ;;
-    -d|--docker-compose)
+    -d | --docker-compose)
         # FULL path to docker-compose file
         if [ -n "$2" ]; then
             if [ -f "$2" ]; then
@@ -232,8 +233,8 @@ while [ $# -gt 0 ]; do
             consoleError '1' "$1: cannot be blank/empty."
         fi
         ;;
-    -m|--mailcow-config)
-    # FULL path to mailcow configuration file file
+    -m | --mailcow-config)
+        # FULL path to mailcow configuration file file
         if [ -n "$2" ]; then
             if [ -f "$2" ]; then
                 mcConfig="$2"
@@ -245,7 +246,7 @@ while [ $# -gt 0 ]; do
             consoleError '1' "$1: cannot be blank/empty."
         fi
         ;;
-    -t1|--timeout-start)
+    -t1 | --timeout-start)
         if [ -z "$2" ]; then
             consoleError '1' "$1: cannot be blank/empty."
         else
@@ -253,7 +254,7 @@ while [ $# -gt 0 ]; do
             shift
         fi
         ;;
-    -t2|--timeout-stop)
+    -t2 | --timeout-stop)
         if [ -z "$2" ]; then
             consoleError '1' "$1: cannot be blank/empty."
         else
@@ -261,9 +262,9 @@ while [ $# -gt 0 ]; do
             shift
         fi
         ;;
-    -b|--backup-location)
+    -b | --backup-location)
         if [ -n "$2" ]; then
-            if [ -d "$2" ] && [ -n "$( ls -A "$2" )" ]; then
+            if [ -d "$2" ] && [ -n "$(ls -A "$2")" ]; then
                 backupLocation="${2%/}"
                 shift
             else
@@ -309,6 +310,14 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 if ! command -v docker >/dev/null; then
     consoleError '3' 'docker does not seem to be installed!'
 fi
+# verify compose installed and set proper commands based on version
+if ! (docker compose version >/dev/null 2>&1); then
+    if ! (docker-compose --version >/dev/null 2>&1); then
+        printf "\n%sERROR: Docker Compose not installed or not functioning%s\n\n" "$err" "$norm"
+        exit 3
+    fi
+    dockerCmd="docker-compose"
+fi
 # mailcow.conf?
 if [ ! -f "$mcConfig" ]; then
     consoleError '1' "mailcow configuration file ($mcConfig) cannot be found."
@@ -353,7 +362,7 @@ else
     fi
 fi
 # write initial log entries
-if ! printf "%s[%s] --- Start %s execution ---\n%s" "$magenta" "$(stamp)" "$scriptName" "$norm" 2>/dev/null >> "$logfile"; then
+if ! printf "%s[%s] --- Start %s execution ---\n%s" "$magenta" "$(stamp)" "$scriptName" "$norm" 2>/dev/null >>"$logfile"; then
     consoleError '1' "Unable to write to log file ($logfile)"
 fi
 writeLog 'info' "Log located at $logfile"
@@ -383,14 +392,14 @@ if [ "$restoreSQL" -eq 1 ]; then
     sqlBackup=$(find "${backupLocation}/tmp" -iname "*.sql")
     if [ -n "$sqlBackup" ]; then
         # start mysql container if not already running
-        if ! docker container inspect -f '{{ .State.Running }}' ${COMPOSE_PROJECT_NAME}_mysql-mailcow_1 > /dev/null 2>&1; then
-            docker-compose up -d mysql-mailcow > /dev/null 2>&1
-            if docker container inspect -f '{{ .State.Running }}' ${COMPOSE_PROJECT_NAME}_mysql-mailcow_1 > /dev/null 2>&1; then
+        if ! docker container inspect -f '{{ .State.Running }}' ${COMPOSE_PROJECT_NAME}_mysql-mailcow_1 >/dev/null 2>&1; then
+            "${dockerCmd}" up -d mysql-mailcow >/dev/null 2>&1
+            if docker container inspect -f '{{ .State.Running }}' ${COMPOSE_PROJECT_NAME}_mysql-mailcow_1 >/dev/null 2>&1; then
                 sqlRunning=1
             else
                 writeLog 'done' 'error'
                 writeLog 'error' '12' "Cannot start mysql-mailcow container -- cannot restore mailcow database!"
-                errorCount=$((errorCount+1))
+                errorCount=$((errorCount + 1))
             fi
         else
             sqlRunning=1
@@ -398,29 +407,29 @@ if [ "$restoreSQL" -eq 1 ]; then
     else
         writeLog 'done' 'error'
         writeLog 'error' '11' "Cannot locate SQL backup -- cannot restore mailcow database!"
-        errorCount=$((errorCount+1))
+        errorCount=$((errorCount + 1))
     fi
 
     # restore sql
     if [ "$sqlRunning" -eq 1 ]; then
-        if docker exec -i "$(docker-compose ps -q mysql-mailcow)" mysql -u${DBUSER} -p${DBPASS} ${DBNAME} < "${sqlBackup}" > /dev/null 2>&1; then
+        if docker exec -i "$("${dockerCmd}" ps -q mysql-mailcow)" mysql -u${DBUSER} -p${DBPASS} ${DBNAME} <"${sqlBackup}" >/dev/null 2>&1; then
             writeLog 'done'
         else
             writeLog 'done' 'error'
             writeLog 'error' '13' "Something went wrong while trying to restore SQL database. Perhaps try again?"
-            errorCount=$((errorCount+1))
+            errorCount=$((errorCount + 1))
         fi
     fi
 fi
 
 ### stop containers (necessary for all restore operations except SQL)
 writeLog 'task' "Stopping mailcow"
-if ! docker-compose down --timeout "${dockerStopTimeout}" > /dev/null 2>&1; then
+if ! "${dockerCmd}" down --timeout "${dockerStopTimeout}" >/dev/null 2>&1; then
     writeLog 'done' 'error'
     writeLog 'error' '20' "Unable to bring mailcow containers down -- cannot reliably restore. Aborting."
     exitError 20
 fi
-if [ "$( docker ps --filter "name=${COMPOSE_PROJECT_NAME}" -q | wc -l )" -gt 0 ]; then
+if [ "$(docker ps --filter "name=${COMPOSE_PROJECT_NAME}" -q | wc -l)" -gt 0 ]; then
     writeLog 'done' 'error'
     writeLog 'error' '20' "Unable to bring mailcow containers down -- cannot reliably restore. Aborting."
     exitError 20
@@ -436,59 +445,61 @@ if [ "$restoreMail" -eq 1 ]; then
     fi
 
     # restore email messages
-    doRestore "${COMPOSE_PROJECT_NAME}_vmail-vol-1" "$dockerVolumeMail"; ec="$?"
+    doRestore "${COMPOSE_PROJECT_NAME}_vmail-vol-1" "$dockerVolumeMail"
+    ec="$?"
     case "$ec" in
-        0)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'success' "Email messages restored"
-            else
-                writeLog 'done'
-            fi
-            ;;
-        1)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'error' '52' "There was an error restoring one or more email messages."
-            else
-                writeLog 'done' 'error'
-                writeLog 'error' '52' "There was an error restoring one or more email messages."
-            fi
-            ;;
-        2)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'error' '51' "Cannot locate email message backups!"
-            else
-                writeLog 'done' 'error'
-                writeLog 'error' '51' "Cannot locate email message backups!"
-            fi
-            ;;
+    0)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'success' "Email messages restored"
+        else
+            writeLog 'done'
+        fi
+        ;;
+    1)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'error' '52' "There was an error restoring one or more email messages."
+        else
+            writeLog 'done' 'error'
+            writeLog 'error' '52' "There was an error restoring one or more email messages."
+        fi
+        ;;
+    2)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'error' '51' "Cannot locate email message backups!"
+        else
+            writeLog 'done' 'error'
+            writeLog 'error' '51' "Cannot locate email message backups!"
+        fi
+        ;;
     esac
 
     # restore encryption key
-    doRestore "${COMPOSE_PROJECT_NAME}_crypt-vol-1" "$dockerVolumeCrypt"; ec="$?"
+    doRestore "${COMPOSE_PROJECT_NAME}_crypt-vol-1" "$dockerVolumeCrypt"
+    ec="$?"
     case "$ec" in
-        0)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'success' "Encryption key restored"
-            else
-                writeLog 'done'
-            fi
-            ;;
-        1)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'error' '52' "There was an error restoring the encryption key! Any restored messages are likely *not* readable!"
-            else
-                writeLog 'done' 'error'
-                writeLog 'error' '52' "There was an error restoring the encryption key! Any restored messages are likely *not* readable!"
-            fi
-            ;;
-        2)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'error' '51' "Cannot locate encryption key backup!"
-            else
-                writeLog 'done' 'error'
-                writeLog 'error' '51' "Cannot locate encryption key backup!"
-            fi
-            ;;
+    0)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'success' "Encryption key restored"
+        else
+            writeLog 'done'
+        fi
+        ;;
+    1)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'error' '52' "There was an error restoring the encryption key! Any restored messages are likely *not* readable!"
+        else
+            writeLog 'done' 'error'
+            writeLog 'error' '52' "There was an error restoring the encryption key! Any restored messages are likely *not* readable!"
+        fi
+        ;;
+    2)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'error' '51' "Cannot locate encryption key backup!"
+        else
+            writeLog 'done' 'error'
+            writeLog 'error' '51' "Cannot locate encryption key backup!"
+        fi
+        ;;
     esac
 fi
 
@@ -500,31 +511,32 @@ if [ "$restorePostfix" -eq 1 ]; then
         writeLog 'task' "Restoring postfix files"
     fi
 
-    doRestore "${COMPOSE_PROJECT_NAME}_postfix-vol-1" "$dockerVolumePostfix"; ec="$?"
+    doRestore "${COMPOSE_PROJECT_NAME}_postfix-vol-1" "$dockerVolumePostfix"
+    ec="$?"
     case "$ec" in
-        0)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'success' "Postfix files restored"
-            else
-                writeLog 'done'
-            fi
-            ;;
-        1)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'error' '52' "There was an error restoring one or more postfix files."
-            else
-                writeLog 'done' 'error'
-                writeLog 'error' '52' "There was an error restoring one or more postfix files."
-            fi
-            ;;
-        2)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'error' '51' "Cannot locate postfix backups!"
-            else
-                writeLog 'done' 'error'
-                writeLog 'error' '51' "Cannot locate postfix backups!"
-            fi
-            ;;
+    0)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'success' "Postfix files restored"
+        else
+            writeLog 'done'
+        fi
+        ;;
+    1)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'error' '52' "There was an error restoring one or more postfix files."
+        else
+            writeLog 'done' 'error'
+            writeLog 'error' '52' "There was an error restoring one or more postfix files."
+        fi
+        ;;
+    2)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'error' '51' "Cannot locate postfix backups!"
+        else
+            writeLog 'done' 'error'
+            writeLog 'error' '51' "Cannot locate postfix backups!"
+        fi
+        ;;
     esac
 fi
 
@@ -536,31 +548,32 @@ if [ "$restoreRspamd" -eq 1 ]; then
         writeLog 'task' "Restoring Rspamd files"
     fi
 
-    doRestore "${COMPOSE_PROJECT_NAME}_rspamd-vol-1" "$dockerVolumeRspamd"; ec="$?"
+    doRestore "${COMPOSE_PROJECT_NAME}_rspamd-vol-1" "$dockerVolumeRspamd"
+    ec="$?"
     case "$ec" in
-        0)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'success' "Rspamd files restored"
-            else
-                writeLog 'done'
-            fi
-            ;;
-        1)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'error' '52' "There was an error restoring one or more Rspamd files."
-            else
-                writeLog 'done' 'error'
-                writeLog 'error' '52' "There was an error restoring one or more Rspamd files."
-            fi
-            ;;
-        2)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'error' '51' "Cannot locate Rspamd backups!"
-            else
-                writeLog 'done' 'error'
-                writeLog 'error' '51' "Cannot locate Rspamd backups!"
-            fi
-            ;;
+    0)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'success' "Rspamd files restored"
+        else
+            writeLog 'done'
+        fi
+        ;;
+    1)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'error' '52' "There was an error restoring one or more Rspamd files."
+        else
+            writeLog 'done' 'error'
+            writeLog 'error' '52' "There was an error restoring one or more Rspamd files."
+        fi
+        ;;
+    2)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'error' '51' "Cannot locate Rspamd backups!"
+        else
+            writeLog 'done' 'error'
+            writeLog 'error' '51' "Cannot locate Rspamd backups!"
+        fi
+        ;;
     esac
 fi
 
@@ -572,54 +585,55 @@ if [ "$restoreRedis" -eq 1 ]; then
         writeLog 'task' "Restoring redis database"
     fi
 
-    doRestore "${COMPOSE_PROJECT_NAME}_redis-vol-1" "$dockerVolumeRedis"; ec="$?"
+    doRestore "${COMPOSE_PROJECT_NAME}_redis-vol-1" "$dockerVolumeRedis"
+    ec="$?"
     case "$ec" in
-        0)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'success' "Redis database restored"
-            else
-                writeLog 'done'
-            fi
-            ;;
-        1)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'error' '52' "There was an error restoring the redis database. This is usually *not* a serious issue."
-            else
-                writeLog 'done' 'error'
-                writeLog 'error' '52' "There was an error restoring the redis database. This is usually *not* a serious issue."
-            fi
-            ;;
-        2)
-            if [ "$verbose" -eq 1 ]; then
-                writeLog 'error' '51' "Cannot locate redis database backups!"
-            else
-                writeLog 'done' 'error'
-                writeLog 'error' '51' "Cannot locate redis database backups!"
-            fi
-            ;;
+    0)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'success' "Redis database restored"
+        else
+            writeLog 'done'
+        fi
+        ;;
+    1)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'error' '52' "There was an error restoring the redis database. This is usually *not* a serious issue."
+        else
+            writeLog 'done' 'error'
+            writeLog 'error' '52' "There was an error restoring the redis database. This is usually *not* a serious issue."
+        fi
+        ;;
+    2)
+        if [ "$verbose" -eq 1 ]; then
+            writeLog 'error' '51' "Cannot locate redis database backups!"
+        else
+            writeLog 'done' 'error'
+            writeLog 'error' '51' "Cannot locate redis database backups!"
+        fi
+        ;;
     esac
 fi
 
 ### restart mailcow
 writeLog 'task' "Starting mailcow"
-if ! docker-compose up -d > /dev/null 2>&1; then
+if ! "${dockerCmd}" up -d >/dev/null 2>&1; then
     writeLog 'done' 'warn'
     writeLog 'warn' '21' "Unable to automatically start mailcow containers. Please attempt a manual start and note any errors."
-    warnCount=$((warnCount+1))
+    warnCount=$((warnCount + 1))
 fi
 writeLog 'done'
 
 ### exit gracefully
 if [ "$errorCount" -gt 0 ]; then
     # note non-terminating errors
-    printf "%s[%s] --- %s execution completed with %s error(s) ---\n%s" "$err" "$(stamp)" "$scriptName" "$errorCount" "$norm" >> "$logfile"
+    printf "%s[%s] --- %s execution completed with %s error(s) ---\n%s" "$err" "$(stamp)" "$scriptName" "$errorCount" "$norm" >>"$logfile"
     exit 98
 elif [ "$warnCount" -gt 0 ]; then
-    printf "%s[%s] --- %s execution completed with %s warning(s) ---\n%s" "$yellow" "$(stamp)" "$scriptName" "$warnCount" "$norm" >> "$logfile"
+    printf "%s[%s] --- %s execution completed with %s warning(s) ---\n%s" "$yellow" "$(stamp)" "$scriptName" "$warnCount" "$norm" >>"$logfile"
     exit 97
 else
     writeLog 'success' "All processes completed"
-    printf "%s[%s] --- %s execution completed ---\n%s" "$magenta" "$(stamp)" "$scriptName" "$norm" >> "$logfile"
+    printf "%s[%s] --- %s execution completed ---\n%s" "$magenta" "$(stamp)" "$scriptName" "$norm" >>"$logfile"
     exit 0
 fi
 

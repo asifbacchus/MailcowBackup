@@ -9,6 +9,14 @@
       </inspection_tool>
     </profile>
   </component>
+  <component name="GitSharedSettings">
+    <option name="FORCE_PUSH_PROHIBITED_PATTERNS">
+      <list>
+        <option value="master" />
+        <option value="main" />
+      </list>
+    </option>
+  </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
   </component>
