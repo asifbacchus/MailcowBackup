@@ -175,6 +175,7 @@ writeLog() {
 
 ### parameter defaults
 # script related
+scriptVersion="4.0"
 scriptPath="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)"
 scriptName="$(basename "$0")"
 errorCount=0
@@ -208,6 +209,11 @@ while [ $# -gt 0 ]; do
     -h | -\? | --help)
         # display help
         scriptHelp
+        ;;
+    --version)
+        # display script version
+        printf "\nMailcowRestore - Restore Mailcow from a borgbackup repo : Version %s\n\n" ${scriptVersion}
+        exit 0
         ;;
     -l | --log)
         # set logfile location
