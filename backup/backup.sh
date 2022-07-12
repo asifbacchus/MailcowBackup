@@ -98,14 +98,14 @@ cleanup() {
         printf "%s[%s] -- [INFO] POSTFIX container is running --%s\n" \
             "$cyan" "$(stamp)" "$norm" >>"$logFile"
     else
-        exitError 102 'Could not start POSTFIX container.'
+        exitError 102 'Could not start POSTFIX container.' 'final'
     fi
     doDocker start dovecot
     if [ "$dockerResultState" = "true" ]; then
         printf "%s[%s] -- [INFO] DOVECOT container is running --%s\n" \
             "$cyan" "$(stamp)" "$norm" >>"$logFile"
     else
-        exitError 102 'Could not start DOVECOT container.'
+        exitError 102 'Could not start DOVECOT container.' 'final'
     fi
 }
 
@@ -133,7 +133,7 @@ doDocker() {
 exitError() {
     printf "%s[%s] -- [ERROR] %s: %s --%s\n" \
         "$err" "$(stamp)" "$1" "$2" "$norm" >>"$logFile"
-    cleanup
+    if [ ! "$3" = "final" ]; then cleanup; fi
     # note script completion with error
     printf "%s[%s] --- %s execution completed with error ---%s\n" \
         "$err" "$(stamp)" "$scriptName" "$norm" >>"$logFile"
