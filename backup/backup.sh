@@ -116,14 +116,14 @@ doDocker() {
     if [ "$1" = "stop" ]; then
         printf "%s[%s] -- [INFO] Stopping %s-mailcow container --%s\n" \
             "$cyan" "$(stamp)" "$2" "$norm" >>"$logFile"
-        docker-compose -f "$mcDockerCompose" stop --timeout "$dockerStopTimeout" "$2-mailcow" 2>>"$logFile"
+        ${dockerCmd} -f "$mcDockerCompose" stop --timeout "$dockerStopTimeout" "$2-mailcow" 2>>"$logFile"
         # set result vars
         dockerResultState="$(docker inspect -f '{{ .State.Running }}' $containerName)"
         dockerResultExit="$(docker inspect -f '{{ .State.ExitCode }}' $containerName)"
     elif [ "$1" = "start" ]; then
         printf "%s[%s] -- [INFO] Starting %s-mailcow container --%s\n" \
             "$cyan" "$(stamp)" "$2" "$norm" >>"$logFile"
-        docker-compose -f "$mcDockerCompose" start "$2-mailcow" 2>>"$logFile"
+        ${dockerCmd} -f "$mcDockerCompose" start "$2-mailcow" 2>>"$logFile"
         # set result vars
         dockerResultState="$(docker inspect -f '{{ .State.Running }}' $containerName)"
     fi
@@ -263,6 +263,7 @@ configDetails="$scriptPath/${scriptName%.*}.details"
 err503Copied=0
 sqlDumpDirCreated=0
 exclusions=0
+dockerCmd="docker compose"
 borgPath="/usr/bin/borg"
 # borg output verbosity -- normal
 borgCreateParams='--stats'
@@ -430,6 +431,14 @@ if [ "$(id -u)" -ne 0 ]; then
     printf "\n%sERROR: script MUST be run as ROOT%s\n\n" "$err" "$norm"
     exit 2
 fi
+# verify compose installed and set proper commands based on version
+if ! (docker compose version >/dev/null 2>&1); then
+    if ! (docker-compose --version >/dev/null 2>&1); then
+        printf "\n%sERROR: Docker Compose not installed or not functioning%s\n\n" "$err" "$norm"
+        exit 3
+    fi
+    dockerCmd="docker-compose"
+fi
 # does the details file exist?
 if [ ! -f "$configDetails" ]; then
     badParam dne "(--details default)" "$configDetails"
@@ -437,7 +446,7 @@ fi
 # is borg installed?
 if ! find "$borgPath" -type f -executable >/dev/null 2>&1; then
     printf "\n%sERROR: BORG cannot be found in the specified or default location on this system!%s\n\n" "$err" "$norm"
-    exit 3
+    exit 4
 fi
 # if 503 functionality is enabled, do 503 related files exist?
 if [ "$use503" -eq 1 ]; then
@@ -689,9 +698,9 @@ fi
 ### dump SQL
 printf "%s[%s] -- [INFO] Dumping mailcow SQL database --%s\n" \
     "$cyan" "$(stamp)" "$norm" >>"$logFile"
-docker-compose exec -T mysql-mailcow mysqldump --default-character-set=utf8mb4 \
+${dockerCmd} exec -T mysql-mailcow mysqldump --default-character-set=utf8mb4 \
     -u${DBUSER} -p${DBPASS} ${DBNAME} >"$sqlDumpDir/$sqlDumpFile" 2>>"$logFile"
-dumpResult=$(docker-compose exec -T mysql-mailcow echo "$?")
+dumpResult=$(${dockerCmd} exec -T mysql-mailcow echo "$?")
 if [ "$dumpResult" -eq 0 ]; then
     printf "%s[%s] -- [INFO] SQL database dumped successfully --%s\n" \
         "$cyan" "$(stamp)" "$norm" >>"$logFile"
@@ -707,8 +716,8 @@ fi
 # dump redis
 printf "%s[%s] -- [INFO] Dumping mailcow redis database --%s\n" \
     "$cyan" "$(stamp)" "$norm" >>"$logFile"
-docker-compose exec -T redis-mailcow redis-cli save >>"$logFile" 2>&1
-rdumpResult=$(docker-compose exec -T redis-mailcow echo "$?")
+${dockerCmd} exec -T redis-mailcow redis-cli save >>"$logFile" 2>&1
+rdumpResult=$(${dockerCmd} exec -T redis-mailcow echo "$?")
 if [ "$rdumpResult" -eq 0 ]; then
     printf "%s[%s] -- [INFO] mailcow redis dumped successfully --%s\n" \
         "$cyan" "$(stamp)" "$norm" >>"$logFile"
@@ -834,7 +843,8 @@ exit 0
 ### error codes
 # 1: parameter error
 # 2: not run as root
-# 3: borg not installed
+# 3: docker compose not installed or not functioning
+# 4: borg not installed
 # 99: TERM signal trapped
 # 100: could not change to mailcow-dockerized directory
 # 101: could not stop container(s)
