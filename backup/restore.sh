@@ -399,7 +399,7 @@ if [ "$restoreSQL" -eq 1 ]; then
     if [ -n "$sqlBackup" ]; then
         # start mysql container if not already running
         if ! docker container inspect -f '{{ .State.Running }}' ${COMPOSE_PROJECT_NAME}_mysql-mailcow_1 >/dev/null 2>&1; then
-            "${dockerCmd}" up -d mysql-mailcow >/dev/null 2>&1
+            ${dockerCmd} up -d mysql-mailcow >/dev/null 2>&1
             if docker container inspect -f '{{ .State.Running }}' ${COMPOSE_PROJECT_NAME}_mysql-mailcow_1 >/dev/null 2>&1; then
                 sqlRunning=1
             else
@@ -418,7 +418,7 @@ if [ "$restoreSQL" -eq 1 ]; then
 
     # restore sql
     if [ "$sqlRunning" -eq 1 ]; then
-        if docker exec -i "$("${dockerCmd}" ps -q mysql-mailcow)" mysql -u${DBUSER} -p${DBPASS} ${DBNAME} <"${sqlBackup}" >/dev/null 2>&1; then
+        if docker exec -i "$(${dockerCmd} ps -q mysql-mailcow)" mysql -u${DBUSER} -p${DBPASS} ${DBNAME} <"${sqlBackup}" >/dev/null 2>&1; then
             writeLog 'done'
         else
             writeLog 'done' 'error'
@@ -430,7 +430,7 @@ fi
 
 ### stop containers (necessary for all restore operations except SQL)
 writeLog 'task' "Stopping mailcow"
-if ! "${dockerCmd}" down --timeout "${dockerStopTimeout}" >/dev/null 2>&1; then
+if ! ${dockerCmd} down --timeout "${dockerStopTimeout}" >/dev/null 2>&1; then
     writeLog 'done' 'error'
     writeLog 'error' '20' "Unable to bring mailcow containers down -- cannot reliably restore. Aborting."
     exitError 20
@@ -622,7 +622,7 @@ fi
 
 ### restart mailcow
 writeLog 'task' "Starting mailcow"
-if ! "${dockerCmd}" up -d >/dev/null 2>&1; then
+if ! ${dockerCmd} up -d >/dev/null 2>&1; then
     writeLog 'done' 'warn'
     writeLog 'warn' '21' "Unable to automatically start mailcow containers. Please attempt a manual start and note any errors."
     warnCount=$((warnCount + 1))

@@ -117,14 +117,14 @@ doDocker() {
     if [ "$1" = "stop" ]; then
         printf "%s[%s] -- [INFO] Stopping %s-mailcow container --%s\n" \
             "$cyan" "$(stamp)" "$2" "$norm" >>"$logFile"
-        "${dockerCmd}" -f "$mcDockerCompose" stop --timeout "$dockerStopTimeout" "$2-mailcow" 2>>"$logFile"
+        ${dockerCmd} -f "$mcDockerCompose" stop --timeout "$dockerStopTimeout" "$2-mailcow" 2>>"$logFile"
         # set result vars
         dockerResultState="$(docker inspect -f '{{ .State.Running }}' "$containerName")"
         dockerResultExit="$(docker inspect -f '{{ .State.ExitCode }}' "$containerName")"
     elif [ "$1" = "start" ]; then
         printf "%s[%s] -- [INFO] Starting %s-mailcow container --%s\n" \
             "$cyan" "$(stamp)" "$2" "$norm" >>"$logFile"
-        "${dockerCmd}" -f "$mcDockerCompose" start "$2-mailcow" 2>>"$logFile"
+        ${dockerCmd} -f "$mcDockerCompose" start "$2-mailcow" 2>>"$logFile"
         # set result vars
         dockerResultState="$(docker inspect -f '{{ .State.Running }}' "$containerName")"
     fi
@@ -700,9 +700,9 @@ fi
 ### dump SQL
 printf "%s[%s] -- [INFO] Dumping mailcow SQL database --%s\n" \
     "$cyan" "$(stamp)" "$norm" >>"$logFile"
-"${dockerCmd}" exec -T mysql-mailcow mysqldump --default-character-set=utf8mb4 \
+${dockerCmd} exec -T mysql-mailcow mysqldump --default-character-set=utf8mb4 \
     -u${DBUSER} -p${DBPASS} ${DBNAME} >"$sqlDumpDir/$sqlDumpFile" 2>>"$logFile"
-dumpResult=$("${dockerCmd}" exec -T mysql-mailcow echo "$?")
+dumpResult=$(${dockerCmd} exec -T mysql-mailcow echo "$?")
 if [ "$dumpResult" -eq 0 ]; then
     printf "%s[%s] -- [INFO] SQL database dumped successfully --%s\n" \
         "$cyan" "$(stamp)" "$norm" >>"$logFile"
@@ -718,8 +718,8 @@ fi
 # dump redis
 printf "%s[%s] -- [INFO] Dumping mailcow redis database --%s\n" \
     "$cyan" "$(stamp)" "$norm" >>"$logFile"
-"${dockerCmd}" exec -T redis-mailcow redis-cli save >>"$logFile" 2>&1
-rdumpResult=$("${dockerCmd}" exec -T redis-mailcow echo "$?")
+${dockerCmd} exec -T redis-mailcow redis-cli save >>"$logFile" 2>&1
+rdumpResult=$(${dockerCmd} exec -T redis-mailcow echo "$?")
 if [ "$rdumpResult" -eq 0 ]; then
     printf "%s[%s] -- [INFO] mailcow redis dumped successfully --%s\n" \
         "$cyan" "$(stamp)" "$norm" >>"$logFile"
